@@ -1,0 +1,125 @@
+# CircleCI configuration file
+version: 2.1
+orbs:
+  browser-tools: circleci/browser-tools@1.4.1
+  docker: circleci/docker@2.2.0
+  aws-ecr: circleci/aws-ecr@8.1.2 # use the AWS ECR orb
+  aws-ecs: circleci/aws-ecs@3.2.0 # use the AWS ECS orb
+  aws-cli: circleci/aws-cli@3.1.1 # use the AWS CLI orb
+
+executors:
+  backend-executor:
+    docker:
+      - image: cimg/python:3.10
+      - image: cimg/postgres:15.0
+        environment:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+  build-executor:
+    docker:
+      - image: cimg/python:3.10
+jobs:
+  # Job one with a unique name
+  test-backend:
+    executor: backend-executor
+    environment:
+      DEBUG: 1
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      DB_HOST: localhost
+      DB_PORT: 5432
+    steps:
+      - checkout
+      - browser-tools/install-browser-tools
+      - run:
+          name: Waiting for Postgres to be ready
+          command: |
+            for i in `seq 1 10`;
+            do
+              nc -z localhost 5432 && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for Postgress && exit 1
+      - run:
+          name: Check Lint for Django code
+          command: |
+              pip install flake8
+              cd backend
+              flake8 --ignore=E501,F401 .
+      - run:
+          name: Run unit test
+          command: |
+            cd backend
+            pip install -r requirements.txt
+            pip install coverage
+            pip install pytest-django
+            python manage.py migrate
+            coverage run -m pytest --junitxml=test-results/junit.xml
+            coverage html
+      - store_test_results:
+          path: backend/test-results            
+      - store_artifacts:
+          path: backend/htmlcov
+
+  build-and-push-backend:
+    executor: docker/docker
+    environment:
+      DEBUG: 0
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      DB_PORT: 5432
+      DOCKER_IMAGE: waflol/social-media-api
+      DOCKER_TAG: lastest
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run:
+          name: Waiting for Postgres to be ready
+          command: |
+            chmod +x ./entrypoint.prod.sh
+            ./entrypoint.prod.sh
+      - docker/check:
+          docker-username: DOCKER_USER
+          docker-password: DOCKER_PASSWORD
+      - run:
+          name: docker/build
+          command: |
+            docker build -t $DOCKER_IMAGE:$DOCKER_TAG backend/
+      - docker/push:
+          digest-path: /tmp/digest.txt
+          image: $DOCKER_IMAGE
+          tag: $DOCKER_TAG
+      - run:
+          command: |
+            echo "Digest is: $(</tmp/digest.txt)"
+  build-and-push-ecr:
+    executor: aws-cli/default
+    steps:
+      - aws-cli/install
+      - aws-cli/setup:
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-region: AWS_DEFAULT_REGION
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+workflows:
+  # Name of workflow
+  pipeline:
+    # List of jobs that will run
+    jobs:
+      - test-backend
+      - build-and-push-backend:
+          requires:
+            - test-backend
+          # filters:
+          #   branches:
+          #     only:
+          #       - main
+      - aws-ecr/build-and-push-image: # Use the pre-defined `build-and-push-image` job
+          dockerfile: Dockerfile
+          path: .
+          profile-name: waflol
+          repo: social-web-api
+          tag: latest # default - latest
