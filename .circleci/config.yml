@@ -16,9 +16,6 @@ executors:
           POSTGRES_DB: postgres
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-  build-executor:
-    docker:
-      - image: cimg/python:3.10
 jobs:
   # Job one with a unique name
   test-backend:
@@ -86,7 +83,7 @@ jobs:
       - run:
           name: docker/build
           command: |
-            docker build -t $DOCKER_IMAGE:$DOCKER_TAG backend/
+            docker build -t $DOCKER_IMAGE:$DOCKER_TAG .
       - docker/push:
           digest-path: /tmp/digest.txt
           image: $DOCKER_IMAGE
