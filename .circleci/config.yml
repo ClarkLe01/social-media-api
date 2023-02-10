@@ -47,12 +47,10 @@ jobs:
           name: Check Lint for Django code
           command: |
               pip install flake8
-              cd backend
               flake8 --ignore=E501,F401 .
       - run:
           name: Run unit test
           command: |
-            cd backend
             pip install -r requirements.txt
             pip install coverage
             pip install pytest-django
@@ -60,9 +58,9 @@ jobs:
             coverage run -m pytest --junitxml=test-results/junit.xml
             coverage html
       - store_test_results:
-          path: backend/test-results            
+          path: test-results            
       - store_artifacts:
-          path: backend/htmlcov
+          path: htmlcov
 
   build-and-push-backend:
     executor: docker/docker
