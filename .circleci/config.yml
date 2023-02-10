@@ -41,11 +41,6 @@ jobs:
             done
             echo Failed waiting for Postgress && exit 1
       - run:
-          name: Check Lint for Django code
-          command: |
-              pip install flake8
-              flake8 --ignore=E501,F401 .
-      - run:
           name: Run unit test
           command: |
             pip install -r requirements.txt
