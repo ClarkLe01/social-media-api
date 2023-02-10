@@ -55,7 +55,7 @@ jobs:
             coverage run -m pytest --junitxml=test-results/junit.xml
             coverage html
       - store_test_results:
-          path: test-results            
+          path: test-results
       - store_artifacts:
           path: htmlcov
 
