@@ -13,14 +13,13 @@ RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev
 
 # install dependencies
 RUN pip install --upgrade pip
-COPY ./requirements.txt backend/
+COPY ./requirements.txt .
 RUN pip install -r ./requirements.txt
 
 # copy entrypoint.sh
-COPY ./entrypoint.sh /backend/
-RUN sed -i 's/\r$//g' /backend/entrypoint.sh
-RUN chmod +x /backend/entrypoint.sh
+COPY ./entrypoint.sh .
+RUN sed -i 's/\r$//g' ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
 
 # copy project
-COPY . /backend/
-WORKDIR /backend/
+COPY . .
