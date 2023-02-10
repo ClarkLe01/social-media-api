@@ -102,7 +102,7 @@ jobs:
       - aws-cli/install
       - aws-cli/setup:
           aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-region: AWS_DEFAULT_REGION
+          aws-region: AWS_REGION
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
 workflows:
   # Name of workflow
