@@ -24,3 +24,6 @@ RUN chmod +x /app/backend/entrypoint.sh
 # copy project
 COPY . /app/backend/
 WORKDIR /app/backend/
+
+EXPOSE 8000
+CMD ['python', 'manage.py', 'runserver', '0.0.0.0:8000']
