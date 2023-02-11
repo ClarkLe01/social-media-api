@@ -22,7 +22,11 @@ jobs:
     executor: backend-executor
     environment:
       DEBUG: 1
-      API_HOST: localhost:8000
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      DB_HOST: localhost
+      DB_PORT: 5432
     steps:
       - checkout
       - browser-tools/install-browser-tools
@@ -54,6 +58,10 @@ jobs:
     executor: docker/docker
     environment:
       DEBUG: 0
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      DB_PORT: 5432
       DOCKER_IMAGE: waflol/social-media-api
       DOCKER_TAG: lastest
     steps:
@@ -74,7 +82,7 @@ jobs:
       - docker/push:
           digest-path: /tmp/digest.txt
           image: $DOCKER_IMAGE
-          tag: '${CIRCLE_SHA1}'
+          tag: $DOCKER_TAG
       - run:
           command: |
             echo "Digest is: $(</tmp/digest.txt)"
