@@ -114,4 +114,4 @@ workflows:
           path: .
           profile-name: waflol
           repo: social-web-api
-          tag: ${CIRCLE_SHA1} # default - latest
+          tag: latest # default - latest
