@@ -108,6 +108,8 @@ workflows:
           #     only:
           #       - main
       - aws-ecr/build-and-push-image: # Use the pre-defined `build-and-push-image` job
+          requires:
+            - test-backend
           dockerfile: Dockerfile
           path: .
           profile-name: waflol
