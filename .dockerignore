@@ -9,3 +9,5 @@ venv
 venv/*
 .idea
 .idea/*
+test-results
+.pytest_cache
