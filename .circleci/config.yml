@@ -103,10 +103,10 @@ workflows:
       - build-and-push-backend:
           requires:
             - test-backend
-          # filters:
-          #   branches:
-          #     only:
-          #       - main
+          filters:
+            branches:
+              only:
+                - main
       - aws-ecr/build-and-push-image: # Use the pre-defined `build-and-push-image` job
           requires:
             - test-backend
@@ -115,3 +115,7 @@ workflows:
           profile-name: waflol
           repo: social-web-api
           tag: latest # default - latest
+          filters:
+            branches:
+              only:
+                - main
