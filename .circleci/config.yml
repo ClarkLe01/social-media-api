@@ -103,7 +103,7 @@ workflows:
           post-steps:
             - jira/notify:
                 environment_type: testing
-                job_type: deployment
+                job_type: build
       - build-and-push-backend:
           requires:
             - test-backend
@@ -113,8 +113,8 @@ workflows:
                 - main
           post-steps:
             - jira/notify:
-                environment_type: build-push-docker-hub
-                job_type: deployment
+                environment_type: development
+                job_type: build
       - aws-ecr/build-and-push-image: # Use the pre-defined `build-and-push-image` job
           requires:
             - test-backend
@@ -129,5 +129,5 @@ workflows:
                 - main
           post-steps:
             - jira/notify:
-                environment_type: build-push-ecr
-                job_type: deployment
+                environment_type: development
+                job_type: build
