@@ -1,11 +1,15 @@
 # CircleCI configuration file
 version: 2.1
+
+
 orbs:
   browser-tools: circleci/browser-tools@1.4.1
   docker: circleci/docker@2.2.0
   aws-ecr: circleci/aws-ecr@8.1.2 # use the AWS ECR orb
   aws-ecs: circleci/aws-ecs@3.2.0 # use the AWS ECS orb
   aws-cli: circleci/aws-cli@3.1.1 # use the AWS CLI orb
+  jira: circleci/jira@1.3.1
+
 
 executors:
   backend-executor:
@@ -16,6 +20,8 @@ executors:
           POSTGRES_DB: postgres
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+
+
 jobs:
   # Job one with a unique name
   test-backend:
@@ -86,6 +92,7 @@ jobs:
       - run:
           command: |
             echo "Digest is: $(</tmp/digest.txt)"
+
   build-and-push-ecr:
     executor: aws-cli/default
     steps:
@@ -94,12 +101,19 @@ jobs:
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-region: AWS_REGION
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+
+
 workflows:
   # Name of workflow
   pipeline:
     # List of jobs that will run
     jobs:
-      - test-backend
+      - test-backend:
+          post-steps:
+            - jira/notify:
+                environment_type: testing
+                job_type: build
+
       - build-and-push-backend:
           requires:
             - test-backend
@@ -107,6 +121,11 @@ workflows:
             branches:
               only:
                 - main
+          post-steps:
+            - jira/notify:
+                environment_type: development
+                job_type: build
+
       - aws-ecr/build-and-push-image: # Use the pre-defined `build-and-push-image` job
           requires:
             - test-backend
@@ -119,3 +138,7 @@ workflows:
             branches:
               only:
                 - main
+          post-steps:
+            - jira/notify:
+                environment_type: development
+                job_type: build
