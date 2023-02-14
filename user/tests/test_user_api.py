@@ -68,6 +68,56 @@ class UnAuthenticatedUserApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    def test_register_user_success(self):
+        """Test creating a user is successful."""
+        payload = {
+            'email': 'test@example.com',
+            'password': 'testpass123',
+            'first_name': 'Test',
+            'last_name': 'Name',
+            'gender': '1',
+            'birthday': '2001-02-05',
+        }
+        res = self.client.post(REGISTER_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        user = User.objects.get(email=payload['email'])
+        self.assertTrue(user.check_password(payload['password']))
+        self.assertNotIn('password', res.data)
+
+    def test_user_with_email_exists_error(self):
+        """Test error returned if user with email exists."""
+        payload = {
+            'email': 'test@example.com',
+            'password': 'testpass123',
+            'first_name': 'Test',
+            'last_name': 'Name',
+            'gender': '1',
+            'birthday': '2001-02-05',
+        }
+        User.objects.create_user(**payload)
+        res = self.client.post(REGISTER_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_password_too_short_error(self):
+        """Test an error is returned if password less than 5 chars."""
+        payload = {
+            'email': 'test@example.com',
+            'password': 'ab',
+            'first_name': 'Test',
+            'last_name': 'Name',
+            'gender': '1',
+            'birthday': '2001-02-05',
+        }
+        res = self.client.post(REGISTER_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        user_exists = User.objects.filter(
+            email=payload['email']
+        ).exists()
+        self.assertFalse(user_exists)
+
 
 class AuthenticatedUserApiTests(TestCase):
     """Test API requests that require authentication."""
