@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -20,10 +21,10 @@ class CustomUserManager(BaseUserManager):
         """
         Create and save a User with the given email and password.
         """
-        extra_fields.setdefault('username', email)
         if not email:
             raise ValueError(_('The Email must be set'))
         email = self.normalize_email(email)
+        extra_fields.setdefault('username', email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save()
@@ -47,11 +48,11 @@ class User(AbstractUser):
     email = models.EmailField(max_length=100, unique=True)
     first_name = models.CharField("first name", max_length=150, blank=True)
     last_name = models.CharField("last name", max_length=150, blank=True)
-    avatar = models.ImageField(upload_to=upload_avatar_directory_path)
-    gender = models.BooleanField(default=0)  # default is female
-    birthday = models.DateField(auto_now_add=True)
+    avatar = models.ImageField(upload_to=upload_avatar_directory_path, null=True, blank=True)
+    gender = models.BooleanField()  # default is female
+    birthday = models.DateField()
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ["first_name", "last_name"]
+    REQUIRED_FIELDS = ["first_name", "last_name", "birthday", "gender"]
     objects = CustomUserManager()
 
     def __str__(self):
