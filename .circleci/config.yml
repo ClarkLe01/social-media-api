@@ -49,13 +49,13 @@ jobs:
       - run:
           name: Migrations and Migrate
           command: |
+            pip install -r requirements.txt
             python manage.py makemigrations
             python manage.py migrate
             python manage.py loaddata fixtures/users.json --app user.User
       - run:
           name: Run unit test
           command: |
-            pip install -r requirements.txt
             pip install coverage
             pip install pytest-django
             coverage run -m pytest --junitxml=test-results/junit.xml
