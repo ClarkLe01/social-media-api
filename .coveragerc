@@ -1,0 +1,5 @@
+[run]
+omit = */tests/*, */management/*, */migrations/*, */__init__.py, */urls.py, manage.py
+
+[report]
+omit = */tests/*, */management/*, */migrations/*, */__init__.py, */urls.py, manage.py

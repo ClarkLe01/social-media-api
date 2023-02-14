@@ -47,12 +47,17 @@ jobs:
             done
             echo Failed waiting for Postgress && exit 1
       - run:
-          name: Run unit test
+          name: Migrations and Migrate
           command: |
             pip install -r requirements.txt
+            python manage.py makemigrations
+            python manage.py migrate
+            python manage.py loaddata fixtures/users.json --app user.User
+      - run:
+          name: Run unit test
+          command: |
             pip install coverage
             pip install pytest-django
-            python manage.py migrate
             coverage run -m pytest --junitxml=test-results/junit.xml
             coverage html
       - store_test_results:

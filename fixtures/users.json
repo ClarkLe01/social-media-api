@@ -1,0 +1,23 @@
+[
+  {
+    "model": "user.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$390000$K7ikWgbKmAPv0jHLC5obey$p80AFTB3LBo+tzww7iutbuXp8dS8p4hcXTDMli49+wA=",
+      "last_login": null,
+      "is_superuser": true,
+      "username": "admin@gmail.com",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2023-02-14T16:12:21.241Z",
+      "email": "admin@gmail.com",
+      "first_name": "Clark",
+      "last_name": "Le",
+      "avatar": "",
+      "gender": true,
+      "birthday": "2001-02-05",
+      "groups": [],
+      "user_permissions": []
+    }
+  }
+]
