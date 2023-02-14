@@ -162,3 +162,4 @@ class AuthenticatedUserApiTests(TestCase):
         self.client.credentials(HTTP_AUTHORIZATION='Token abc')
         res = self.client.get(PROFILE_URL)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+ 
