@@ -2,7 +2,7 @@
 FROM python:3.9.6-alpine
 
 # set work directory
-WORKDIR /app
+WORKDIR /app/backend/
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -13,16 +13,15 @@ RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev
 
 # install dependencies
 RUN pip install --upgrade pip
-COPY ./requirements.txt /app/backend/
-RUN pip install -r ./backend/requirements.txt
+COPY ./requirements.txt .
+RUN pip install -r requirements.txt
 
 # copy entrypoint.sh
-COPY ./entrypoint.sh /app/backend/
+COPY ./entrypoint.sh .
 RUN sed -i 's/\r$//g' /app/backend/entrypoint.sh
 RUN chmod +x /app/backend/entrypoint.sh
 
 # copy project
-COPY . /app/backend/
-WORKDIR /app/backend/
+COPY . .
 EXPOSE 8000
 CMD ['python', 'manage.py', 'runserver', '0.0.0.0:8000']
