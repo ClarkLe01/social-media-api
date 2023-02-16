@@ -48,8 +48,12 @@ class User(AbstractUser):
     first_name = models.CharField("first name", max_length=150, blank=True)
     last_name = models.CharField("last name", max_length=150, blank=True)
     avatar = models.ImageField(upload_to=upload_avatar_directory_path, null=True, blank=True)
-    gender = models.BooleanField()  # default is female
-    birthday = models.DateField()
+    MALE = 'male'
+    FEMALE = 'female'
+    NONBINARY = 'nonbinary'
+    STATUS_CHOICES = [(MALE, 'male'), (FEMALE, 'female'), (NONBINARY, 'nonbinary')]
+    gender = models.CharField(max_length=10, choices=STATUS_CHOICES, default=FEMALE)  # default is female
+    birthday = models.DateTimeField()
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ["first_name", "last_name", "birthday", "gender"]
     objects = CustomUserManager()
