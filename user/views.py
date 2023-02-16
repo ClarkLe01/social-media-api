@@ -16,7 +16,6 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 class TestAPIView(APIView):
     def post(self, request):
-        confirm_password = request.data.pop('confirm_password')  # noqa: F841
         serializer = UserSerializer(data=request.data, many=False)
         serializer.is_valid()
         print(serializer.data)
@@ -40,11 +39,8 @@ class UserRegisterAPIView(generics.CreateAPIView):
             'birthday': '2023-02-09T17:00:00.000Z'
         }
         """
-        confirm_password = request.data.pop('confirm_password')
         if len(request.data['password']) < 6:
             return Response('Password must be at least 6 characters', status=status.HTTP_400_BAD_REQUEST)
-        elif request.data['password'] != confirm_password:
-            return Response('Confirm password does not match password', status=status.HTTP_400_BAD_REQUEST)
         else:
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
