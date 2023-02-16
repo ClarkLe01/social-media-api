@@ -73,6 +73,7 @@ class UnAuthenticatedUserApiTests(TestCase):
         payload = {
             'email': 'test@example.com',
             'password': 'testpass123',
+            'confirm_password': 'testpass123',
             'first_name': 'Test',
             'last_name': 'Name',
             'gender': 'male',
@@ -96,6 +97,7 @@ class UnAuthenticatedUserApiTests(TestCase):
             'birthday': '2001-02-05',
         }
         User.objects.create_user(**payload)
+        payload['confirm_password'] = 'testpass123'
         res = self.client.post(REGISTER_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
@@ -105,6 +107,7 @@ class UnAuthenticatedUserApiTests(TestCase):
         payload = {
             'email': 'test@example.com',
             'password': 'ab',
+            'confirm_password': 'testpass123',
             'first_name': 'Test',
             'last_name': 'Name',
             'gender': 'male',
@@ -112,6 +115,24 @@ class UnAuthenticatedUserApiTests(TestCase):
         }
         res = self.client.post(REGISTER_URL, payload)
 
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        user_exists = User.objects.filter(
+            email=payload['email']
+        ).exists()
+        self.assertFalse(user_exists)
+
+    def test_password_different(self):
+        """Test an error is returned if password less than 5 chars."""
+        payload = {
+            'email': 'test@example.com',
+            'password': 'testpass123',
+            'confirm_password': 'testpass1234',
+            'first_name': 'Test',
+            'last_name': 'Name',
+            'gender': 'male',
+            'birthday': '2001-02-05',
+        }
+        res = self.client.post(REGISTER_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
         user_exists = User.objects.filter(
             email=payload['email']
