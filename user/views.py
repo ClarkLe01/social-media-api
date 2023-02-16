@@ -39,8 +39,11 @@ class UserRegisterAPIView(generics.CreateAPIView):
             'birthday': '2023-02-09T17:00:00.000Z'
         }
         """
+        print(request.data)
         if len(request.data['password']) < 6:
-            return Response('Password must be at least 6 characters', status=status.HTTP_400_BAD_REQUEST)
+            return Response('Password must be at least 6 characters!', status=status.HTTP_400_BAD_REQUEST)
+        elif request.data['password'] != request.data['confirm_password']:
+            return Response('Confirm Password does not match!', status=status.HTTP_400_BAD_REQUEST)
         else:
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
