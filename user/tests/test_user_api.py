@@ -96,7 +96,6 @@ class UnAuthenticatedUserApiTests(TestCase):
             'birthday': '2001-02-05',
         }
         User.objects.create_user(**payload)
-        payload['confirm_password'] = 'testpass123'
         res = self.client.post(REGISTER_URL, payload)
 
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
