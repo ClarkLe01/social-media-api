@@ -35,7 +35,6 @@ sentry_sdk.init(
 
 capture_message("Sentry is configured correctly", level='info')
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -46,6 +45,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY_DJANGO", default="secret_key")
 
 DEBUG = int(os.environ.get("DEBUG", default=1))
 
+APPEND_SLASH = False
 
 ROLLBAR = {
     'access_token': '15a34ed3a5594e11ac67a77240015af3',
@@ -131,7 +131,6 @@ else:
         }
     }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 AUTH_USER_MODEL = 'user.User'
@@ -168,7 +167,7 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [
     BASE_DIR / "static/",
-    ]
+]
 
 # STATIC_ROOT = BASE_DIR / "static"
 
