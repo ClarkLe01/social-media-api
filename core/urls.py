@@ -20,7 +20,7 @@ from django.urls import path, re_path, include
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -55,6 +55,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('user/', include('user.urls')),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 ]
 
 if bool(settings.DEBUG):
