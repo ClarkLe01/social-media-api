@@ -52,3 +52,5 @@ rollbar
 pyotp
 channels[daphne]
 celery[redis]
+flower
+channels_redis

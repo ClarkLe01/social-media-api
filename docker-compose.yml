@@ -16,6 +16,7 @@ services:
       - .:/app/backend
 
     depends_on:
+      - redis
       - db
 
   db:
@@ -24,6 +25,53 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - ./.env
+
+  redis:
+    image: redis:latest
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: celery_worker
+    command: /app/backend/celery/worker/start.sh
+    volumes:
+      - .:/app/backend
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+      - db
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: celery_beat
+    command: /app/backend/celery/beat/start.sh
+    volumes:
+      - .:/app/backend
+    env_file:
+      - ./.env
+    depends_on:
+      - redis
+      - db
+
+  flower:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: celery_flower
+    command: /app/backend/celery/flower/start.sh
+    volumes:
+      - .:/app/backend
+    env_file:
+      - ./.env
+    ports:
+      - '5557:5555'
+    depends_on:
+      - redis
+      - db
 
 volumes:
   postgres_data:

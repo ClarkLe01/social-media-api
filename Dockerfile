@@ -1,9 +1,6 @@
 # pull official base image
 FROM python:3.9.6-alpine
 
-# set work directory
-WORKDIR /app/backend/
-
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
@@ -17,9 +14,21 @@ COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
 # copy entrypoint.sh
-COPY . .
-COPY ./entrypoint.sh /app/backend/
+COPY . /app/backend/
+#COPY ./entrypoint.sh /app/backend/
 RUN sed -i 's/\r$//g' /app/backend/entrypoint.sh
 RUN chmod +x /app/backend/entrypoint.sh
 
-# copy project
+#COPY ./celery/beat/start.sh /app/backend/celery/beat/
+RUN sed -i 's/\r$//g' /app/backend/celery/beat/start.sh
+RUN chmod +x /app/backend/celery/beat/start.sh
+
+#COPY ./celery/worker/start.sh /app/backend/celery/worker/
+RUN sed -i 's/\r$//g' /app/backend/celery/worker/start.sh
+RUN chmod +x /app/backend/celery/worker/start.sh
+
+#COPY ./celery/flower/start.sh /app/backend/celery/flower/
+RUN sed -i 's/\r$//g' /app/backend/celery/flower/start.sh
+RUN chmod +x /app/backend/celery/flower/start.sh
+
+WORKDIR /app/backend/
