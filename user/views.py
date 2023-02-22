@@ -40,7 +40,9 @@ class UserRegisterAPIView(generics.CreateAPIView):
         }
         """
         print(request.data)
-        if len(request.data['password']) < 6:
+        if User.objects.filter(email=request.data['email']).exists():
+            return Response('Your email existed!', status=status.HTTP_400_BAD_REQUEST)
+        elif len(request.data['password']) < 6:
             return Response('Password must be at least 6 characters!', status=status.HTTP_400_BAD_REQUEST)
         elif request.data['password'] != request.data['confirm_password']:
             return Response('Confirm Password does not match!', status=status.HTTP_400_BAD_REQUEST)

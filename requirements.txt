@@ -49,3 +49,6 @@ uritemplate==4.1.1
 urllib3==1.26.14
 virtualenv==20.19.0
 rollbar
+pyotp
+channels[daphne]
+celery[redis]

@@ -3,11 +3,16 @@ from django.contrib.auth import password_validation
 from django.core import exceptions
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
+from django.utils.translation import gettext_lazy as _
 from .models import User
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    default_error_messages = {
+        "no_active_account": _("Wrong Email or Password")
+    }
+
     def validate(self, attrs):
         data = super().validate(attrs)
         data["user"] = self.user.email
