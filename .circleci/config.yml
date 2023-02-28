@@ -67,7 +67,7 @@ jobs:
           path: htmlcov
 
   build-and-push-backend:
-    executor: docker/docker
+    executor: backend-executor
     environment:
       DEBUG: 0
       POSTGRES_DB: postgres
