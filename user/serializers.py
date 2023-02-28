@@ -1,6 +1,4 @@
 from django.conf import settings
-from django.contrib.auth import password_validation
-from django.core import exceptions
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.utils.translation import gettext_lazy as _
@@ -24,7 +22,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email', 'gender', 'birthday', 'password', 'first_name', 'last_name']
+        fields = ['id', 'email', 'gender', 'birthday', 'password', 'first_name', 'last_name']
         extra_kwargs = {
             'password': {'write_only': True}
         }

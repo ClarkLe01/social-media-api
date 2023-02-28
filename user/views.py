@@ -1,12 +1,14 @@
+from django.core.signing import Signer
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from .serializers import UserSerializer, MyTokenObtainPairSerializer, UserProfileSerializer
 from .models import User
 from rest_framework_simplejwt.views import TokenObtainPairView
+import pyotp
+signer = Signer(salt='extra')
 
 
 # Create your views here.
@@ -52,7 +54,7 @@ class UserRegisterAPIView(generics.CreateAPIView):
             self.perform_create(serializer)
             print(serializer.data)
             headers = self.get_success_headers(serializer.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            return Response({'token': serializer.data['id']}, status=status.HTTP_201_CREATED, headers=headers)
 
 
 @api_view(['GET'])
