@@ -7,7 +7,6 @@ from rest_framework.views import APIView
 from .serializers import UserSerializer, MyTokenObtainPairSerializer, UserProfileSerializer
 from .models import User
 from rest_framework_simplejwt.views import TokenObtainPairView
-import pyotp
 signer = Signer(salt='extra')
 
 

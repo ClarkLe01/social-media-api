@@ -1,5 +1,4 @@
 from datetime import datetime
-import pyotp
 import base64
 from django.conf import settings
 from django.core.signing import Signer

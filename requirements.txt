@@ -49,7 +49,6 @@ uritemplate==4.1.1
 urllib3==1.26.14
 virtualenv==20.19.0
 rollbar
-django-otp
 channels[daphne]
 celery[redis]
 flower
