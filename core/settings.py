@@ -15,7 +15,7 @@ from pathlib import Path
 import sentry_sdk
 from sentry_sdk import capture_message
 from sentry_sdk.integrations.django import DjangoIntegration
-import rollbar
+# import rollbar
 
 sentry_sdk.init(
     dsn=os.environ.get("SENTRY_DNS"),
@@ -47,15 +47,15 @@ DEBUG = int(os.environ.get("DEBUG", default=1))
 
 APPEND_SLASH = False
 
-ROLLBAR = {
-    'access_token': '15a34ed3a5594e11ac67a77240015af3',
-    'environment': 'development' if DEBUG else 'production',
-    'code_version': '1.0',
-    'root': BASE_DIR,
-}
-
-rollbar.init(**ROLLBAR)
-rollbar.report_message('Rollbar is configured correctly', level='info')
+# ROLLBAR = {
+#     'access_token': '15a34ed3a5594e11ac67a77240015af3',
+#     'environment': 'development' if DEBUG else 'production',
+#     'code_version': '1.0',
+#     'root': BASE_DIR,
+# }
+#
+# rollbar.init(**ROLLBAR)
+# rollbar.report_message('Rollbar is configured correctly', level='info')
 
 ALLOWED_HOSTS = ["*"]
 
@@ -75,6 +75,9 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     'channels',
     "user",
+    "notification",
+    "chat",
+    "friend",
     "utils",
 ]
 
@@ -91,6 +94,18 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
 
 ROOT_URLCONF = "core.urls"
 
@@ -189,7 +204,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(seconds=60),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
