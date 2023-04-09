@@ -1,20 +1,20 @@
 from django.urls import path
 from .views import (
-    FriendRequestView,
+    AddFriendView,
     DeleteFriendView,
     AcceptFriendRequestView,
     FriendRequestsListView,
-    FriendsListView,
-    FriendsBondListView
+    FriendResponsesListView,
+    FriendListView
 )
 
 
 app_name = 'friend'
 urlpatterns = [
-    path('/request', FriendRequestView.as_view(), name='request'),
-    path('/delete/<int:pk>', DeleteFriendView.as_view(), name='delete'),
-    path('/accept/<int:pk>', AcceptFriendRequestView.as_view(), name='accept'),
-    path('/requestslist', FriendRequestsListView.as_view(), name='requestslist'),
-    path('/myfriendslist', FriendsListView.as_view(), name='myfriendslist'),
-    path('/friendsbond/<int:pk>', FriendsBondListView.as_view(), name='friendsbond'),
+    path('/add', AddFriendView.as_view(), name='addFriend'),
+    path('/requests', FriendRequestsListView.as_view(), name='requestsList'),
+    path('/responses', FriendResponsesListView.as_view(), name='responsesList'),
+    path('/delete/<int:pk>', DeleteFriendView.as_view(), name='deleteFriend'),
+    path('/accept/<int:pk>', AcceptFriendRequestView.as_view(), name='acceptFriendRequest'),
+    path('/list/<int:pk>', FriendListView.as_view(), name='friendsList'),
 ]

@@ -11,10 +11,23 @@ from rest_framework.response import Response
 
 # Create your views here.
 
-class FriendRequestView(generics.CreateAPIView):
+class AddFriendView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = FriendSerializer
     queryset = Friend.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        if Friend.objects.filter((Q(requestID=request.user.id) & Q(responseID=request.data.get('responseID'))) | Q(requestID=request.data.get('responseID')) & Q(responseID=request.user.id)).exists():
+            return Response({'detail': 'You are already friends or are waiting for their response.'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data={
+            'requestID': request.user.id,
+            'responseID': request.data.get('responseID'),
+        })
+        serializer.is_valid(raise_exception=True)
+        print(serializer)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class DeleteFriendView(generics.DestroyAPIView):
@@ -33,7 +46,7 @@ class AcceptFriendRequestView(generics.UpdateAPIView):
     def update(self, request, *args, **kwargs):
         friend = self.get_object()
         if friend.responseID == request.user:
-            friend.status = request.data.get('status')
+            friend.status = 1
             friend.save()
             serializer = self.get_serializer(friend)
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -42,7 +55,8 @@ class AcceptFriendRequestView(generics.UpdateAPIView):
                             status=status.HTTP_403_FORBIDDEN)
 
 
-class FriendRequestsListView(generics.ListAPIView):
+# other people send requests to current user and wait current user response
+class FriendResponsesListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = FriendSerializer
     queryset = Friend.objects.all()
@@ -52,18 +66,18 @@ class FriendRequestsListView(generics.ListAPIView):
         return queryset
 
 
-class FriendsListView(generics.ListAPIView):
+# current user send requests to other people and wait other people response
+class FriendRequestsListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = FriendSerializer
     queryset = Friend.objects.all()
 
     def get_queryset(self):
-        queryset = Friend.objects.filter(status=True).filter(
-            Q(requestID=self.request.user.id) | Q(responseID=self.request.user.id))
+        queryset = Friend.objects.filter(status=False, requestID=self.request.user)
         return queryset
 
 
-class FriendsBondListView(generics.ListAPIView):
+class FriendListView(generics.ListAPIView):
     serializer_class = FriendSerializer
 
     def get_queryset(self):
