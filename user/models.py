@@ -6,7 +6,22 @@ from django.utils.translation import gettext_lazy as _
 
 def upload_avatar_directory_path(instance, filename):
     # files will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return '{0}/avatar/{1}'.format(instance.user.email, filename)
+    return '{0}/avatar/{1}'.format(instance.email, filename)
+
+
+def upload_cover_directory_path(instance, filename):
+    # files will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return '{0}/cover/{1}'.format(instance.email, filename)
+
+
+def upload_album_directory_path(instance, filename):
+    # files will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return '{0}/album/{1}'.format(instance.email, filename)
+
+
+def upload_video_directory_path(instance, filename):
+    # files will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return '{0}/video/{1}'.format(instance.email, filename)
 
 
 # Create your models here.
@@ -47,7 +62,13 @@ class User(AbstractUser):
     email = models.EmailField(max_length=100, unique=True)
     first_name = models.CharField("first name", max_length=150, blank=True)
     last_name = models.CharField("last name", max_length=150, blank=True)
-    avatar = models.ImageField(upload_to=upload_avatar_directory_path, null=True, blank=True)
+
+    cover = models.ImageField(upload_to=upload_cover_directory_path,
+                              null=True, blank=True,
+                              default='default/cover_default.png')
+    avatar = models.ImageField(upload_to=upload_cover_directory_path,
+                               null=True, blank=True,
+                               default='default/avatar_default.jpg')
     MALE = 'male'
     FEMALE = 'female'
     NONBINARY = 'nonbinary'

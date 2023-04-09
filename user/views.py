@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from .serializers import UserSerializer, MyTokenObtainPairSerializer, UserProfileSerializer
 from .models import User
 from rest_framework_simplejwt.views import TokenObtainPairView
+
 signer = Signer(salt='extra')
 
 
@@ -58,7 +59,29 @@ class UserRegisterAPIView(generics.CreateAPIView):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def getUserProfile(request):
+def getMyProfile(request):
     user = request.user
     serializer = UserProfileSerializer(user, many=False)
     return Response(serializer.data, status.HTTP_200_OK)
+
+
+class MyProfileView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserProfileSerializer
+
+    def get_object(self):
+        return self.request.user
+
+
+class UserProfileView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserProfileSerializer
+    lookup_field = 'pk'
+
+
+class UpdateMyProfileView(generics.UpdateAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
