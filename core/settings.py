@@ -129,25 +129,35 @@ WSGI_APPLICATION = "core.wsgi.application"
 ASGI_APPLICATION = "core.asgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
-IS_DOCKER = os.environ.get("IS_DOCKER", default=0)
-if IS_DOCKER == 1:
-    DATABASES = {
-        "default": {
-            "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.postgresql"),
-            "NAME": os.environ.get("POSTGRES_DB", "postgres"),
-            "USER": os.environ.get("POSTGRES_USER", "postgres"),
-            "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "postgres"),
-            "HOST": os.environ.get("DB_HOST", "localhost"),
-            "PORT": os.environ.get("DB_PORT", "5432"),
-        }
+# IS_DOCKER = os.environ.get("IS_DOCKER", default=1)
+# if IS_DOCKER == 1:
+#     DATABASES = {
+#         "default": {
+#             "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.postgresql"),
+#             "NAME": os.environ.get("POSTGRES_DB", "postgres"),
+#             "USER": os.environ.get("POSTGRES_USER", "postgres"),
+#             "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "postgres"),
+#             "HOST": os.environ.get("DB_HOST", "localhost"),
+#             "PORT": os.environ.get("DB_PORT", "5432"),
+#         }
+#     }
+# else:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': BASE_DIR / 'db.sqlite3',
+#         }
+#     }
+DATABASES = {
+    "default": {
+        "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.postgresql"),
+        "NAME": os.environ.get("POSTGRES_DB", "postgres"),
+        "USER": os.environ.get("POSTGRES_USER", "postgres"),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "postgres"),
+        "HOST": os.environ.get("DB_HOST", "localhost"),
+        "PORT": os.environ.get("DB_PORT", "5432"),
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
