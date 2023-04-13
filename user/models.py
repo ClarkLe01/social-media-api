@@ -1,7 +1,31 @@
+import os
+
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+from core.storage import OverwriteStorage
+from django.core.files import File
+from PIL import Image
+
+
+def resize_and_save_image(image_path, output_size):
+    # Open the image using PIL
+    with Image.open(image_path) as img:
+        print("Resizing image", image_path)
+        img.convert('RGB')
+        # Resize the image
+        img_resized = img.resize(output_size)
+
+        # Create a temporary file to save the resized image
+        temp_image = File(open(image_path, 'rb'))
+
+        # Overwrite the temporary file with the resized image
+        with open(image_path, 'wb') as f:
+            img_resized.save(f)
+
+        # Return the resized image as a Django File object
+        return File(open(image_path, 'rb'))
 
 
 def upload_avatar_directory_path(instance, filename):
@@ -66,7 +90,7 @@ class User(AbstractUser):
     cover = models.ImageField(upload_to=upload_cover_directory_path,
                               null=True, blank=True,
                               default='default/cover_default.png')
-    avatar = models.ImageField(upload_to=upload_cover_directory_path,
+    avatar = models.ImageField(upload_to=upload_avatar_directory_path,
                                null=True, blank=True,
                                default='default/avatar_default.jpg')
     MALE = 'male'
@@ -75,6 +99,8 @@ class User(AbstractUser):
     STATUS_CHOICES = [(MALE, 'male'), (FEMALE, 'female'), (NONBINARY, 'nonbinary')]
     gender = models.CharField(max_length=10, choices=STATUS_CHOICES, default=FEMALE)  # default is female
     birthday = models.DateTimeField()
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ["first_name", "last_name", "birthday", "gender"]
     objects = CustomUserManager()
@@ -84,6 +110,15 @@ class User(AbstractUser):
 
     class Meta:
         db_table = 'User'
+
+    # def save(self, *args, **kwargs):
+    #     # Call the parent save method to create the record in the database
+    #     super(User, self).save(*args, **kwargs)
+    #
+    #     # Resize the image and save it to the file system
+    #     cover_path = self.cover.path
+    #     resized_image = resize_and_save_image(cover_path, (1200, 300))
+    #     self.cover.save(os.path.basename(cover_path), resized_image, save=False)
 
 
 class Profile(models.Model):
