@@ -1,10 +1,10 @@
 from django.db.models import Q
-from django.shortcuts import render
-from .models import Friend
+
+from notification.models import Notification
 from user.models import User
+from .models import Friend
 from .serializers import FriendSerializer
 from rest_framework import generics, status
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -24,9 +24,18 @@ class AddFriendView(generics.CreateAPIView):
             'responseID': request.data.get('responseID'),
         })
         serializer.is_valid(raise_exception=True)
-        print(serializer)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
+        print(serializer.data)
+        print(serializer.data.get('responseID'))
+        responser = User.objects.get(id=request.data.get('responseID'))
+        Notification.objects.create(
+            senderID=request.user,
+            receiverID=responser,
+            type='friend-'+str(serializer.data.get('id')),
+            content='sent a request to add friend',
+            read=False,
+        )
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
@@ -49,6 +58,14 @@ class AcceptFriendRequestView(generics.UpdateAPIView):
             friend.status = 1
             friend.save()
             serializer = self.get_serializer(friend)
+            requester = User.objects.get(id=serializer.data.get('requestID'))
+            Notification.objects.create(
+                senderID=request.user.id,
+                receiverID=requester,
+                type='friend-' + str(serializer.data.get('id')),
+                content='accept the request to make friend',
+                read=False,
+            )
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'You do not have permission to update this friend request.'},

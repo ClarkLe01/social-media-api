@@ -55,6 +55,7 @@ urlpatterns = [
     path("admin", admin.site.urls),
     path('user', include('user.urls')),
     path('friend', include('friend.urls')),
+    path('notification', include('notification.urls')),
     path('token/refresh', TokenRefreshView.as_view(), name='token_refresh'),
     path('token/verify', TokenVerifyView.as_view(), name='token_verify'),
     path('utils', include('utils.urls')),
