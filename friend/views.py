@@ -1,5 +1,4 @@
 from django.db.models import Q
-
 from notification.models import Notification
 from user.models import User
 from .models import Friend
@@ -17,8 +16,10 @@ class AddFriendView(generics.CreateAPIView):
     queryset = Friend.objects.all()
 
     def create(self, request, *args, **kwargs):
-        if Friend.objects.filter((Q(requestID=request.user.id) & Q(responseID=request.data.get('responseID'))) | Q(requestID=request.data.get('responseID')) & Q(responseID=request.user.id)).exists():
-            return Response({'detail': 'You are already friends or are waiting for their response.'}, status=status.HTTP_400_BAD_REQUEST)
+        if Friend.objects.filter((Q(requestID=request.user.id) & Q(responseID=request.data.get('responseID'))) | Q(
+                requestID=request.data.get('responseID')) & Q(responseID=request.user.id)).exists():
+            return Response({'detail': 'You are already friends or are waiting for their response.'},
+                            status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(data={
             'requestID': request.user.id,
             'responseID': request.data.get('responseID'),
@@ -26,20 +27,35 @@ class AddFriendView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        print(serializer.data)
-        print(serializer.data.get('responseID'))
         responser = User.objects.get(id=request.data.get('responseID'))
         Notification.objects.create(
             senderID=request.user,
             receiverID=responser,
-            type='friend-'+str(serializer.data.get('id')),
-            content='sent a request to add friend',
+            type='friend-add-' + str(serializer.data.get('id')),
+            content='sent you a request to be a friend',
             read=False,
         )
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
+# Only use when status friend is True
 class DeleteFriendView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = FriendSerializer
+    queryset = Friend.objects.all()
+    lookup_field = 'pk'
+
+
+# Use when status friend is False and request.user == responseID
+class RejectRequestFriendView(generics.DestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = FriendSerializer
+    queryset = Friend.objects.all()
+    lookup_field = 'pk'
+
+
+# Use when status friend is False and request.user == requestID
+class CancelRequestFriendView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = FriendSerializer
     queryset = Friend.objects.all()
@@ -59,11 +75,11 @@ class AcceptFriendRequestView(generics.UpdateAPIView):
             friend.save()
             serializer = self.get_serializer(friend)
             requester = User.objects.get(id=serializer.data.get('requestID'))
-            Notification.objects.create(
+            notify = Notification.objects.create(
                 senderID=request.user.id,
                 receiverID=requester,
-                type='friend-' + str(serializer.data.get('id')),
-                content='accept the request to make friend',
+                type='friend-accept-' + str(serializer.data.get('id')),
+                content='accepted your request to make a friend',
                 read=False,
             )
             return Response(serializer.data, status=status.HTTP_200_OK)

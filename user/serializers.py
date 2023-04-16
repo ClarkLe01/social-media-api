@@ -13,6 +13,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         data = super().validate(attrs)
+        data["id"] = self.user.id
         data["user"] = self.user.email
         data['access_expires'] = int(settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds())
         data['refresh_expires'] = int(settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds())

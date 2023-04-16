@@ -9,13 +9,14 @@ from .serializers import NotificationSerializer
 
 
 @receiver(post_save, sender=Notification)
-def send_notification(sender, instance, **kwargs):
+def send_notification(sender, instance, created, **kwargs):
     # send a notification to the specific user
-    channel_layer = channels.layers.get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        f"user_{instance.receiverID.id}",
-        {
-            "type": "send_notification",
-            "value": json.dumps(NotificationSerializer(instance, many=False).data)
-        },
-    )
+    if created:
+        channel_layer = channels.layers.get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f"user_{instance.receiverID.id}",
+            {
+                "type": "notify",
+                "value": NotificationSerializer(instance, many=False).data
+            },
+        )

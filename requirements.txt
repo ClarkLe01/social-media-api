@@ -53,3 +53,5 @@ channels[daphne]
 celery[redis]
 flower
 channels_redis
+python-socketio
+aioredis

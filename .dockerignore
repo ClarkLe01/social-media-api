@@ -11,3 +11,4 @@ venv/*
 .idea/*
 test-results
 .pytest_cache
+docs

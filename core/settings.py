@@ -78,7 +78,6 @@ INSTALLED_APPS = [
     "notification",
     "chat",
     "friend",
-    "utils",
 ]
 
 MIDDLEWARE = [
@@ -106,7 +105,8 @@ CORS_ALLOW_HEADERS = [
     "x-csrftoken",
     "x-requested-with",
 ]
-
+# CORS_ALLOW_CREDENTIALS = False
+# CORS_ALLOW_METHODS = ('GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS')
 ROOT_URLCONF = "core.urls"
 
 TEMPLATES = [
