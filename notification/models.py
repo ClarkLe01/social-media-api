@@ -12,8 +12,14 @@ class Notification(models.Model):
     read = models.BooleanField(default=False)
     """
         type: string
-        pattern: [action]-[idInstance]
-        action: interact, commentPost, Post, commentStory, story, friend, 
-        example: interact-3
+        pattern: [model]-[action]-[idInstance]
+        action: 
+            - interaction (like, love, sad, angry) 
+            - commentPost (comment)
+            - Post (post) 
+            - commentStory (comment)
+            - story (story)
+            - friend (add, accept), 
+        example: friend-add-3, interaction-like-4
     """
     type = models.CharField(max_length=255, blank=True, null=True)

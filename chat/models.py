@@ -7,6 +7,7 @@ from user.models import User
 class RoomChat(models.Model):
     roomName = models.CharField(max_length=255)
     members = models.ManyToManyField(User, blank=True, null=True)
+    isGroup = models.BooleanField(default=False)
 
 
 class Message(models.Model):
