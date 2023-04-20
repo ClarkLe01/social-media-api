@@ -24,13 +24,16 @@ django_asgi_app = get_asgi_application()
 sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins=[])
 
 import notification.routing  # noqa
+import chat.routing  # noqa
 import core.routing # noqa
+
 application = ProtocolTypeRouter(
     {
         "http": django_asgi_app,
         "websocket": AllowedHostsOriginValidator(
             JWTAuthMiddlewareStack(URLRouter([
                 *notification.routing.websocket_urlpatterns,
+                *chat.routing.websocket_urlpatterns,
                 *core.routing.websocket_urlpatterns,
             ])),
         ),

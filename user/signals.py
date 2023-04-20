@@ -3,6 +3,7 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 import os
 from django.core.files.storage import default_storage
+from chat.models import RoomChat
 
 _OLD_FILEFIELD = 'old_filefield'
 
@@ -29,4 +30,3 @@ def delete_old_image(sender, instance, created, **kwargs):
         old_image = getattr(instance, _OLD_FILEFIELD)
         if os.path.isfile(old_image.path):
             default_storage.delete(old_image.path)
-

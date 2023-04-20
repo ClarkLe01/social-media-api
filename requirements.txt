@@ -55,3 +55,4 @@ flower
 channels_redis
 python-socketio
 aioredis
+django-debug-toolbar

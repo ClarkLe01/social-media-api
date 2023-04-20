@@ -1,4 +1,6 @@
 from django.db.models import Q
+
+from chat.models import RoomChat
 from notification.models import Notification
 from user.models import User
 from .models import Friend
@@ -76,12 +78,14 @@ class AcceptFriendRequestView(generics.UpdateAPIView):
             serializer = self.get_serializer(friend)
             requester = User.objects.get(id=serializer.data.get('requestID'))
             notify = Notification.objects.create(
-                senderID=request.user.id,
+                senderID=request.user,
                 receiverID=requester,
                 type='friend-accept-' + str(serializer.data.get('id')),
                 content='accepted your request to make a friend',
                 read=False,
             )
+            room_chat = RoomChat.objects.create()
+            room_chat.members.add(requester, request.user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'You do not have permission to update this friend request.'},

@@ -1,0 +1,90 @@
+[
+{
+    "model": "chat.message",
+    "pk": 1,
+    "fields": {
+        "senderID": 1,
+        "receiverID": 1,
+        "content": "Hello! What's your name?",
+        "created": "2023-04-18T15:01:36.225Z",
+        "isRemoved": false
+    }
+},
+{
+    "model": "chat.message",
+    "pk": 2,
+    "fields": {
+        "senderID": 2,
+        "receiverID": 1,
+        "content": "I'm Clark. And you?",
+        "created": "2023-04-18T15:01:51.049Z",
+        "isRemoved": false
+    }
+},
+{
+    "model": "chat.message",
+    "pk": 3,
+    "fields": {
+        "senderID": 1,
+        "receiverID": 1,
+        "content": "I'm Drake.",
+        "created": "2023-04-18T15:02:09.636Z",
+        "isRemoved": false
+    }
+},
+{
+    "model": "chat.message",
+    "pk": 4,
+    "fields": {
+        "senderID": 1,
+        "receiverID": 1,
+        "content": "Nice to meet u",
+        "created": "2023-04-18T15:02:20.578Z",
+        "isRemoved": false
+    }
+},
+{
+    "model": "chat.message",
+    "pk": 5,
+    "fields": {
+        "senderID": 2,
+        "receiverID": 1,
+        "content": "Nice to meet u too",
+        "created": "2023-04-18T15:02:50.617Z",
+        "isRemoved": false
+    }
+},
+{
+    "model": "chat.message",
+    "pk": 6,
+    "fields": {
+        "senderID": 1,
+        "receiverID": 2,
+        "content": "Hello",
+        "created": "2023-04-18T15:03:26.407Z",
+        "isRemoved": false
+    }
+},
+{
+    "model": "chat.message",
+    "pk": 7,
+    "fields": {
+        "senderID": 1,
+        "receiverID": 2,
+        "content": "This is Group chat",
+        "created": "2023-04-18T15:03:41.076Z",
+        "isRemoved": false
+    }
+},
+{
+    "model": "chat.message",
+    "pk": 8,
+    "fields": {
+        "senderID": 3,
+        "receiverID": 2,
+        "content": "Ohhh! I see",
+        "created": "2023-04-18T15:03:54.741Z",
+        "isRemoved": false
+    }
+}
+]

@@ -1,0 +1,27 @@
+[
+{
+    "model": "chat.roomchat",
+    "pk": 1,
+    "fields": {
+        "roomName": null,
+        "isGroup": false,
+        "members": [
+            1,
+            2
+        ]
+    }
+},
+{
+    "model": "chat.roomchat",
+    "pk": 2,
+    "fields": {
+        "roomName": null,
+        "isGroup": true,
+        "members": [
+            1,
+            2,
+            3
+        ]
+    }
+}
+]

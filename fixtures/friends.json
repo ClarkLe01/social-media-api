@@ -1,0 +1,13 @@
+[
+{
+    "model": "friend.friend",
+    "pk": 1,
+    "fields": {
+        "requestID": 1,
+        "responseID": 2,
+        "status": true,
+        "created": "2023-04-18T15:01:06.010Z",
+        "updated": "2023-04-18T15:01:06.010Z"
+    }
+}
+]

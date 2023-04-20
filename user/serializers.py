@@ -6,7 +6,6 @@ from .models import User
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-
     default_error_messages = {
         "no_active_account": _("Wrong Email or Password")
     }

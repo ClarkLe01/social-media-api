@@ -15,6 +15,7 @@ from pathlib import Path
 import sentry_sdk
 from sentry_sdk import capture_message
 from sentry_sdk.integrations.django import DjangoIntegration
+
 # import rollbar
 
 sentry_sdk.init(
@@ -78,6 +79,7 @@ INSTALLED_APPS = [
     "notification",
     "chat",
     "friend",
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
@@ -86,6 +88,7 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -261,3 +264,16 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+# INTERNAL_IPS = [
+#     # ...
+#     "127.0.0.1",
+#     "localhost",
+#     # ...
+# ]
+
+if DEBUG:
+    import socket  # only if you haven't already imported this
+
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "localhost", "10.0.2.2"]
