@@ -1,5 +1,3 @@
-from virtualenv.app_data import read_only
-
 from .models import RoomChat, Message, Seen
 from rest_framework import serializers
 from user.models import User

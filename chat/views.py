@@ -90,6 +90,7 @@ class SendMessageView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         data = {key: value for (key, value) in request.data.items()}
         data['senderID'] = request.user.id
+        print(data)
         try:
             room = RoomChat.objects.get(pk=data['receiverID'])
             if request.user not in room.members.all():
