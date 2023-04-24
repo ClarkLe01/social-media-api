@@ -13,7 +13,7 @@ from .views import (
 app_name = 'chat'
 urlpatterns = [
     path('/room/list', RoomChatListView.as_view(), name='room_list'),
-    path('/room/create', RoomChatCreateView.as_view(), name='room_create'),
+    path('/room/new', RoomChatCreateView.as_view(), name='room_new'),
     path('/room/detail/<int:roomId>', RoomChatDetailView.as_view(), name='room_detail'),
     path('/message/latest/<int:roomId>', LatestMessageRetrieveView.as_view(), name='last_message'),
     path('/message/send', SendMessageView.as_view(), name='send_message'),
