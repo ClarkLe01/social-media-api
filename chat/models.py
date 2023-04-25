@@ -8,6 +8,7 @@ class RoomChat(models.Model):
     roomName = models.CharField(max_length=255, blank=True, null=True)
     members = models.ManyToManyField(User, blank=True, null=True, related_name='room_members')
     isGroup = models.BooleanField(default=False)
+    updated = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return 'RoomChat {0}'.format(self.id)

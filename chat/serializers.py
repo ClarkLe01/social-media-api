@@ -54,11 +54,11 @@ class RoomChatSerializer(serializers.ModelSerializer):
 
 class RoomChatListSerializer(serializers.ModelSerializer):
     members = MemberSerializer(many=True, read_only=True)
-    latest_message = serializers.SerializerMethodField()
+    latest_message = serializers.SerializerMethodField(allow_null=True)
 
     class Meta:
         model = RoomChat
-        fields = ('id', 'roomName', 'members', 'isGroup', 'latest_message')
+        fields = ('id', 'roomName', 'members', 'isGroup', 'latest_message', 'updated')
 
     def get_latest_message(self, obj):
         message = Message.objects.filter(receiverID=obj)

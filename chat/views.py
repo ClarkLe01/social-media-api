@@ -43,7 +43,7 @@ class RoomChatListView(generics.ListAPIView):
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)
-        sorted_data = sorted(serializer.data, key=lambda x: x['latest_message']['created'], reverse=True)
+        sorted_data = sorted(serializer.data, key=lambda x: x['updated'], reverse=True)
         return Response(sorted_data)
 
 
@@ -100,6 +100,8 @@ class SendMessageView(generics.CreateAPIView):
             return Response({'error': 'Room chat does not exist'},
                             status=status.HTTP_404_NOT_FOUND)
         serializer = self.get_serializer(data=data)
+        room.updated = serializer.data.created
+        room.save()
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -111,10 +113,14 @@ class MessageListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
-        room = RoomChat.objects.prefetch_related('members').get(pk=kwargs.get('roomId'))
-        if self.request.user not in room.members.all():
-            return Response({'error': 'You do not have permission to get messages in this room.'},
-                            status=status.HTTP_403_FORBIDDEN)
+        try:
+            room = RoomChat.objects.prefetch_related('members').get(pk=kwargs.get('roomId'))
+            if self.request.user not in room.members.all():
+                return Response({'error': 'You do not have permission to get messages in this room.'},
+                                status=status.HTTP_403_FORBIDDEN)
+        except RoomChat.DoesNotExist:
+            return Response({'error': 'The room does not exist!'},
+                            status=status.HTTP_404_NOT_FOUND)
 
         queryset = Message.objects.filter(receiverID=room)
         queryset = self.filter_queryset(queryset)
