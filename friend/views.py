@@ -4,7 +4,7 @@ from chat.models import RoomChat
 from notification.models import Notification
 from user.models import User
 from .models import Friend
-from .serializers import FriendSerializer
+from .serializers import FriendSerializer, FriendDetailSerializer
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -77,7 +77,7 @@ class AcceptFriendRequestView(generics.UpdateAPIView):
             friend.save()
             serializer = self.get_serializer(friend)
             requester = User.objects.get(id=serializer.data.get('requestID'))
-            notify = Notification.objects.create(
+            Notification.objects.create(
                 senderID=request.user,
                 receiverID=requester,
                 type='friend-accept-' + str(serializer.data.get('id')),
@@ -116,6 +116,15 @@ class FriendRequestsListView(generics.ListAPIView):
 
 class FriendListView(generics.ListAPIView):
     serializer_class = FriendSerializer
+
+    def get_queryset(self):
+        user_id = self.kwargs.get('pk')
+        queryset = Friend.objects.filter(status=True).filter(Q(requestID=user_id) | Q(responseID=user_id))
+        return queryset
+
+
+class FriendListDetailView(generics.ListAPIView):
+    serializer_class = FriendDetailSerializer
 
     def get_queryset(self):
         user_id = self.kwargs.get('pk')

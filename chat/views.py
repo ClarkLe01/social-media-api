@@ -1,13 +1,7 @@
-from django.contrib.postgres.aggregates import ArrayAgg
-from django.db.models import Max, Q, F
-from django.shortcuts import render
-from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
-from .serializers import MemberSerializer, RoomChatCreateSerializer, MessageSerializer, SeenSerializer, \
-    RoomChatSerializer, MessageCreateSerializer, RoomChatListSerializer
-from rest_framework import generics, permissions, status, mixins
+from .serializers import RoomChatCreateSerializer, MessageSerializer, SeenSerializer, RoomChatSerializer, MessageCreateSerializer, RoomChatListSerializer
+from rest_framework import generics, permissions, status
 from .models import RoomChat, Message, Seen
 
 
@@ -19,12 +13,17 @@ class RoomChatCreateView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         data = {key: value for (key, value) in request.data.items()}
-        data['members'].append(request.user.id)
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        members = list(int(x) for x in data['members'].split(','))
+        members.append(request.user.id)
+        print(members)
+        print(data)
+        print(request.FILES.getlist('chatFiles'))
+        return Response('test', status=status.HTTP_201_CREATED)
+        # serializer = self.get_serializer(data=request.data)
+        # serializer.is_valid(raise_exception=True)
+        # self.perform_create(serializer)
+        # headers = self.get_success_headers(serializer.data)
+        # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class RoomChatListView(generics.ListAPIView):
@@ -60,7 +59,8 @@ class RoomChatDetailView(generics.RetrieveAPIView):
                                 status=status.HTTP_403_FORBIDDEN)
             serializer = self.get_serializer(room)
         except RoomChat.DoesNotExist:
-            serializer = self.get_serializer(None)
+            return Response({'error': 'Room does not exist'},
+                            status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.data)
 
 

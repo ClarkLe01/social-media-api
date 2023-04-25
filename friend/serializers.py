@@ -9,7 +9,7 @@ class FriendSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class FriendListSerializer(serializers.ModelSerializer):
+class FriendDetailSerializer(serializers.ModelSerializer):
     requestID = MemberSerializer(many=False, read_only=True)
     responseID = MemberSerializer(many=False, read_only=True)
 

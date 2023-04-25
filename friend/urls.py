@@ -5,7 +5,8 @@ from .views import (
     AcceptFriendRequestView,
     FriendRequestsListView,
     FriendResponsesListView,
-    FriendListView
+    FriendListView,
+    FriendListDetailView
 )
 
 
@@ -17,4 +18,5 @@ urlpatterns = [
     path('/delete/<int:pk>', DeleteFriendView.as_view(), name='deleteFriend'),
     path('/accept/<int:pk>', AcceptFriendRequestView.as_view(), name='acceptFriendRequest'),
     path('/list/<int:pk>', FriendListView.as_view(), name='friendsList'),
+    path('/list/detail/<int:pk>', FriendListDetailView.as_view(), name='friendsDetailList'),
 ]
