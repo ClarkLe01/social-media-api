@@ -23,7 +23,7 @@ def user_project_directory_path(instance, filename):
 
 
 class File(models.Model):
-    instance = models.FileField()
+    instance = models.FileField(upload_to=user_project_directory_path)
     type = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True)
     room = models.ForeignKey(RoomChat, blank=True, null=True, on_delete=models.CASCADE)

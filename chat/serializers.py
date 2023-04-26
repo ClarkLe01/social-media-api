@@ -1,6 +1,13 @@
-from .models import RoomChat, Message, Seen
+from virtualenv.app_data import read_only
+from .models import RoomChat, Message, Seen, File
 from rest_framework import serializers
 from user.models import User
+
+
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = File
+        fields = '__all__'
 
 
 class RoomChatCreateSerializer(serializers.ModelSerializer):
@@ -25,11 +32,12 @@ class SeenSerializer(serializers.ModelSerializer):
 
 class MessageSerializer(serializers.ModelSerializer):
     senderID = MemberSerializer(many=False, read_only=True)
+    files = FileSerializer(many=True, read_only=True)
     seen_by = serializers.SerializerMethodField()
 
     class Meta:
         model = Message
-        fields = ('id', 'senderID', 'content', 'created', 'isRemoved', 'receiverID', 'seen_by')
+        fields = ('id', 'senderID', 'content', 'created', 'isRemoved', 'receiverID', 'seen_by', 'files')
 
     def get_seen_by(self, obj):
         seens = Seen.objects.filter(message=obj)

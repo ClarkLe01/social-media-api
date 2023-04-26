@@ -1,7 +1,9 @@
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-
+import channels.layers
+from asgiref.sync import async_to_sync
 from .serializers import RoomChatCreateSerializer, MessageSerializer, SeenSerializer, RoomChatSerializer, \
-    MessageCreateSerializer, RoomChatListSerializer
+    MessageCreateSerializer, RoomChatListSerializer, FileSerializer
 from rest_framework import generics, permissions, status
 from .models import RoomChat, Message, Seen
 
@@ -22,36 +24,70 @@ class RoomChatCreateView(generics.CreateAPIView):
             'members': members,
         })
         serializer.is_valid(raise_exception=True)
-        # self.perform_create(serializer)
-        if len(request.FILES.getlist('chatFiles')) > 0:
-            images = []
-            videos = []
-            others = []
-            for file in request.FILES.getlist('chatFiles'):
-                type = file.content_type.split('/')[0]
-                if type == 'image':
-                    images.append(file)
-                elif type == 'video':
-                    videos.append(file)
-                else:
-                    others.append(file)
+        self.perform_create(serializer)
+        try:
+            if len(request.FILES.getlist('chatFiles')) > 0:
+                images = []
+                videos = []
+                others = []
+                for file in request.FILES.getlist('chatFiles'):
+                    type = file.content_type.split('/')[0]
+                    file_serializer = FileSerializer(data={
+                        'instance': file,
+                        'type': type,
+                        'room': serializer.data['id']
+                    })
+                    file_serializer.is_valid(raise_exception=True)
+                    file_serializer.save()
+                    print(file_serializer.data)
+                    if type == 'image':
+                        images.append(file_serializer.data['id'])
+                    elif type == 'video':
+                        videos.append(file_serializer.data['id'])
+                    else:
+                        others.append(file_serializer.data['id'])
+                messageImages_serializer = MessageCreateSerializer(data={
+                    'senderID': request.user.id,
+                    'content': '',
+                    'receiverID': serializer.data['id'],
+                    'files': images,
+                })
 
-            for image in images:
-                print(image)
-            for video in videos:
-                print(video)
-            for thing in others:
-                print(thing)
-        # message_serializer = MessageCreateSerializer(data={
-        #     'senderID': request.user.id,
-        #     'content': request.data.get('content'),
-        #     'receiverID': serializer.data['id']
-        # })
-        return Response('Test', status=status.HTTP_201_CREATED)
-        # message_serializer.is_valid(raise_exception=True)
-        # message_serializer.save()
-        # headers = self.get_success_headers(serializer.data)
-        # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+                messageImages_serializer.is_valid(raise_exception=True)
+                messageImages_serializer.save()
+                print('messageImages_serializer', messageImages_serializer.data)
+
+                for video in videos:
+                    messageVideo_serializer = MessageCreateSerializer(data={
+                        'senderID': request.user.id,
+                        'content': '',
+                        'receiverID': serializer.data['id'],
+                        'files': [video],
+                    })
+                    messageVideo_serializer.is_valid(raise_exception=True)
+                    messageVideo_serializer.save()
+                for thing in others:
+                    messageThing_serializer = MessageCreateSerializer(data={
+                        'senderID': request.user.id,
+                        'content': '',
+                        'receiverID': serializer.data['id'],
+                        'files': [thing],
+                    })
+                    messageThing_serializer.is_valid(raise_exception=True)
+                    messageThing_serializer.save()
+            message_serializer = MessageCreateSerializer(data={
+                'senderID': request.user.id,
+                'content': request.data.get('content'),
+                'receiverID': serializer.data['id'],
+                'files': [],
+            })
+            message_serializer.is_valid(raise_exception=True)
+            message_serializer.save()
+        except ValidationError:
+            RoomChat.objects.get(id=serializer.data['id']).delete()
+            return Response('Created Failed', status=status.HTTP_400_BAD_REQUEST)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class RoomChatListView(generics.ListAPIView):
@@ -117,23 +153,107 @@ class SendMessageView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         data = {key: value for (key, value) in request.data.items()}
-        data['senderID'] = request.user.id
-        print(data)
+        channel_layer = channels.layers.get_channel_layer()
         try:
             room = RoomChat.objects.get(pk=data['receiverID'])
             if request.user not in room.members.all():
                 return Response({'error': 'You do not have permission to send message to this room.'},
                                 status=status.HTTP_403_FORBIDDEN)
-        except RoomChat.DoesNotExist:
-            return Response({'error': 'Room chat does not exist'},
-                            status=status.HTTP_404_NOT_FOUND)
-        serializer = self.get_serializer(data=data)
-        room.updated = serializer.data.created
-        room.save()
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+            if len(request.FILES.getlist('chatFiles')) > 0:
+                images = []
+                videos = []
+                others = []
+                for file in request.FILES.getlist('chatFiles'):
+                    type = file.content_type.split('/')[0]
+                    file_serializer = FileSerializer(data={
+                        'instance': file,
+                        'type': type,
+                        'room': room.id
+                    })
+                    file_serializer.is_valid(raise_exception=True)
+                    file_serializer.save()
+                    print(file_serializer.data)
+                    if type == 'image':
+                        images.append(file_serializer.data['id'])
+                    elif type == 'video':
+                        videos.append(file_serializer.data['id'])
+                    else:
+                        others.append(file_serializer.data['id'])
+                messageImages_serializer = MessageCreateSerializer(data={
+                    'senderID': request.user.id,
+                    'content': '',
+                    'receiverID': room.id,
+                    'files': images,
+                })
+
+                messageImages_serializer.is_valid(raise_exception=True)
+                messageImages_serializer.save()
+                async_to_sync(channel_layer.group_send)(
+                    f"{room.id}",
+                    {
+                        "type": "message",
+                        "data": MessageSerializer(Message.objects.get(id=messageImages_serializer.data['id']), many=False).data
+                    },
+                )
+                for video in videos:
+                    messageVideo_serializer = MessageCreateSerializer(data={
+                        'senderID': request.user.id,
+                        'content': '',
+                        'receiverID': room.id,
+                        'files': [video],
+                    })
+                    messageVideo_serializer.is_valid(raise_exception=True)
+                    messageVideo_serializer.save()
+                    async_to_sync(channel_layer.group_send)(
+                        f"{room.id}",
+                        {
+                            "type": "message",
+                            "data": MessageSerializer(Message.objects.get(id=messageVideo_serializer.data['id']),
+                                                      many=False).data
+                        },
+                    )
+                for thing in others:
+                    messageThing_serializer = MessageCreateSerializer(data={
+                        'senderID': request.user.id,
+                        'content': '',
+                        'receiverID': room.id,
+                        'files': [thing],
+                    })
+                    messageThing_serializer.is_valid(raise_exception=True)
+                    messageThing_serializer.save()
+                    async_to_sync(channel_layer.group_send)(
+                        f"{room.id}",
+                        {
+                            "type": "message",
+                            "data": MessageSerializer(Message.objects.get(id=messageThing_serializer.data['id']),
+                                                      many=False).data
+                        },
+                    )
+
+            message_serializer = self.get_serializer(data={
+                'senderID': request.user.id,
+                'content': request.data.get('content'),
+                'receiverID': room.id,
+                'files': [],
+            })
+            message_serializer.is_valid(raise_exception=True)
+            self.perform_create(message_serializer)
+            room.updated = message_serializer.data['created']
+            room.save()
+            async_to_sync(channel_layer.group_send)(
+                f"{room.id}",
+                {
+                    "type": "message",
+                    "data": MessageSerializer(Message.objects.get(id=message_serializer.data['id']),
+                                              many=False).data
+                },
+            )
+            headers = self.get_success_headers(message_serializer.data)
+            return Response(message_serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        except (RoomChat.DoesNotExist, ValidationError):
+            return Response({'error': 'Something is wrong'},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class MessageListView(generics.ListAPIView):
