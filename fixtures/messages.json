@@ -7,7 +7,8 @@
         "receiverID": 1,
         "content": "Hello! What's your name?",
         "created": "2023-04-18T15:01:36.225Z",
-        "isRemoved": false
+        "isRemoved": false,
+        "files": []
     }
 },
 {
@@ -18,7 +19,8 @@
         "receiverID": 1,
         "content": "I'm Clark. And you?",
         "created": "2023-04-18T15:01:51.049Z",
-        "isRemoved": false
+        "isRemoved": false,
+        "files": []
     }
 },
 {
@@ -29,7 +31,8 @@
         "receiverID": 1,
         "content": "I'm Drake.",
         "created": "2023-04-18T15:02:09.636Z",
-        "isRemoved": false
+        "isRemoved": false,
+        "files": []
     }
 },
 {
@@ -40,7 +43,8 @@
         "receiverID": 1,
         "content": "Nice to meet u",
         "created": "2023-04-18T15:02:20.578Z",
-        "isRemoved": false
+        "isRemoved": false,
+        "files": []
     }
 },
 {
@@ -51,7 +55,8 @@
         "receiverID": 1,
         "content": "Nice to meet u too",
         "created": "2023-04-18T15:02:50.617Z",
-        "isRemoved": false
+        "isRemoved": false,
+        "files": []
     }
 },
 {
@@ -62,7 +67,8 @@
         "receiverID": 2,
         "content": "Hello",
         "created": "2023-04-18T15:03:26.407Z",
-        "isRemoved": false
+        "isRemoved": false,
+        "files": []
     }
 },
 {
@@ -73,7 +79,8 @@
         "receiverID": 2,
         "content": "This is Group chat",
         "created": "2023-04-18T15:03:41.076Z",
-        "isRemoved": false
+        "isRemoved": false,
+        "files": []
     }
 },
 {
@@ -84,7 +91,8 @@
         "receiverID": 2,
         "content": "Ohhh! I see",
         "created": "2023-04-18T15:03:54.741Z",
-        "isRemoved": false
+        "isRemoved": false,
+        "files": []
     }
 }
 ]

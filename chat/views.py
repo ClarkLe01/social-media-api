@@ -1,6 +1,7 @@
 from rest_framework.response import Response
 
-from .serializers import RoomChatCreateSerializer, MessageSerializer, SeenSerializer, RoomChatSerializer, MessageCreateSerializer, RoomChatListSerializer
+from .serializers import RoomChatCreateSerializer, MessageSerializer, SeenSerializer, RoomChatSerializer, \
+    MessageCreateSerializer, RoomChatListSerializer
 from rest_framework import generics, permissions, status
 from .models import RoomChat, Message, Seen
 
@@ -15,13 +16,40 @@ class RoomChatCreateView(generics.CreateAPIView):
         data = {key: value for (key, value) in request.data.items()}
         members = list(int(x) for x in data['members'].split(','))
         members.append(request.user.id)
-        print(members)
-        print(data)
-        print(request.FILES.getlist('chatFiles'))
-        return Response('test', status=status.HTTP_201_CREATED)
-        # serializer = self.get_serializer(data=request.data)
-        # serializer.is_valid(raise_exception=True)
+        serializer = self.get_serializer(data={
+            'roomName': '',
+            'isGroup': True if len(members) > 2 else False,
+            'members': members,
+        })
+        serializer.is_valid(raise_exception=True)
         # self.perform_create(serializer)
+        if len(request.FILES.getlist('chatFiles')) > 0:
+            images = []
+            videos = []
+            others = []
+            for file in request.FILES.getlist('chatFiles'):
+                type = file.content_type.split('/')[0]
+                if type == 'image':
+                    images.append(file)
+                elif type == 'video':
+                    videos.append(file)
+                else:
+                    others.append(file)
+
+            for image in images:
+                print(image)
+            for video in videos:
+                print(video)
+            for thing in others:
+                print(thing)
+        # message_serializer = MessageCreateSerializer(data={
+        #     'senderID': request.user.id,
+        #     'content': request.data.get('content'),
+        #     'receiverID': serializer.data['id']
+        # })
+        return Response('Test', status=status.HTTP_201_CREATED)
+        # message_serializer.is_valid(raise_exception=True)
+        # message_serializer.save()
         # headers = self.get_success_headers(serializer.data)
         # return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 

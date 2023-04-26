@@ -1,14 +1,12 @@
-from asgiref.sync import sync_to_async
+import datetime
+
 from autobahn.exception import Disconnected
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from django.contrib.auth.models import AnonymousUser
 from user.models import User
 from .models import RoomChat
-from channels.layers import get_channel_layer
-import json
 from .models import Message
-from .serializers import MessageSerializer
 
 
 @database_sync_to_async
@@ -28,6 +26,8 @@ def create_message(data):
         receiverID=receiver,
         content=data['content']
     )
+    receiver.updated = datetime.datetime.now()
+    receiver.save()
 
 
 class RoomConsumer(AsyncJsonWebsocketConsumer):
