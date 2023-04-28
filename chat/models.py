@@ -1,20 +1,35 @@
-from datetime import datetime
-
+from django.utils import timezone
 from django.db import models
 from user.models import User
 import os
 
 
 # Create your models here.
+def upload_room_avatar_directory_path(instance, filename):
+    # files will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'roomchat_{0}/avatar/{1}'.format(instance.id, filename)
+
 
 class RoomChat(models.Model):
     roomName = models.CharField(max_length=255, blank=True, null=True)
-    members = models.ManyToManyField(User, blank=True, null=True, related_name='room_members')
+    members = models.ManyToManyField(User, through='Membership')
     isGroup = models.BooleanField(default=False)
-    updated = models.DateTimeField(default=datetime.now)
+    updated = models.DateTimeField(default=timezone.now)
+    roomAvatar = models.ImageField(upload_to=upload_room_avatar_directory_path, null=True, blank=True)
 
     def __str__(self):
         return 'RoomChat {0}'.format(self.id)
+
+
+class Membership(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    room_chat = models.ForeignKey(RoomChat, on_delete=models.CASCADE)
+    date_joined = models.DateField(auto_now_add=True)
+    role = models.CharField(max_length=64, null=True, blank=True)
+    nickname = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return 'RoomChat {0}'.format(self.room_chat.id)
 
 
 def user_project_directory_path(instance, filename):

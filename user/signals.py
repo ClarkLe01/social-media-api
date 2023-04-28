@@ -3,7 +3,6 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 import os
 from django.core.files.storage import default_storage
-from chat.models import RoomChat
 
 _OLD_FILEFIELD = 'old_filefield'
 

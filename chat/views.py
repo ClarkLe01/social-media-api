@@ -3,9 +3,10 @@ from rest_framework.response import Response
 import channels.layers
 from asgiref.sync import async_to_sync
 from .serializers import RoomChatCreateSerializer, MessageSerializer, SeenSerializer, RoomChatSerializer, \
-    MessageCreateSerializer, RoomChatListSerializer, FileSerializer
+    MessageCreateSerializer, RoomChatListSerializer, FileSerializer, MemberSerializer, MembershipSerializer
 from rest_framework import generics, permissions, status
-from .models import RoomChat, Message, Seen
+from .models import RoomChat, Message, Seen, Membership
+from user.models import User
 
 
 # Create your views here.
@@ -16,15 +17,20 @@ class RoomChatCreateView(generics.CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         data = {key: value for (key, value) in request.data.items()}
-        members = list(int(x) for x in data['members'].split(','))
-        members.append(request.user.id)
+        members = list(User.objects.get(id=x) for x in data['members'].split(','))
+        members.append(request.user)
+        if len(members) == 0 or (
+                len(request.FILES.getlist('chatFiles')) == 0 and len(request.data.get('content')) == 0):
+            return Response({'error': 'Created Failed'}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = self.get_serializer(data={
             'roomName': '',
             'isGroup': True if len(members) > 2 else False,
-            'members': members,
         })
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+        room = RoomChat.objects.get(id=serializer.data['id'])
+        room.members.set(members)
         try:
             if len(request.FILES.getlist('chatFiles')) > 0:
                 images = []
@@ -75,19 +81,27 @@ class RoomChatCreateView(generics.CreateAPIView):
                     })
                     messageThing_serializer.is_valid(raise_exception=True)
                     messageThing_serializer.save()
-            message_serializer = MessageCreateSerializer(data={
-                'senderID': request.user.id,
-                'content': request.data.get('content'),
-                'receiverID': serializer.data['id'],
-                'files': [],
-            })
-            message_serializer.is_valid(raise_exception=True)
-            message_serializer.save()
+            if len(request.data.get('content')) > 0:
+                message_serializer = MessageCreateSerializer(data={
+                    'senderID': request.user.id,
+                    'content': request.data.get('content'),
+                    'receiverID': serializer.data['id'],
+                    'files': [],
+                })
+                message_serializer.is_valid(raise_exception=True)
+                message_serializer.save()
         except ValidationError:
             RoomChat.objects.get(id=serializer.data['id']).delete()
-            return Response('Created Failed', status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Created Failed'}, status=status.HTTP_400_BAD_REQUEST)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class RoomChatUpdateView(generics.UpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = RoomChat.objects.all()
+    serializer_class = RoomChatCreateSerializer
+    lookup_field = 'pk'
 
 
 class RoomChatListView(generics.ListAPIView):
@@ -126,6 +140,30 @@ class RoomChatDetailView(generics.RetrieveAPIView):
             return Response({'error': 'Room does not exist'},
                             status=status.HTTP_404_NOT_FOUND)
         return Response(serializer.data)
+
+
+class MembersDetailListView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = MembershipSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = Membership.objects.filter(room_chat__id=kwargs.get('roomId'))
+        queryset = self.filter_queryset(queryset)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class MemberInfoRoomUpdateView(generics.UpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = RoomChat.objects.all()
+    serializer_class = MembershipSerializer
+    lookup_field = 'pk'
 
 
 class LatestMessageRetrieveView(generics.RetrieveAPIView):

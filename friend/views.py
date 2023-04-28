@@ -85,7 +85,7 @@ class AcceptFriendRequestView(generics.UpdateAPIView):
                 read=False,
             )
             room_chat = RoomChat.objects.create()
-            room_chat.members.add(requester, request.user)
+            room_chat.members.set([requester, request.user])
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'You do not have permission to update this friend request.'},

@@ -1,33 +1,33 @@
-import datetime
-
+# import datetime
+# from django.contrib.auth.models import AnonymousUser
+# from user.models import User
+# from .models import Message
 from autobahn.exception import Disconnected
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
-from django.contrib.auth.models import AnonymousUser
-from user.models import User
+
 from .models import RoomChat
-from .models import Message
 
 
-@database_sync_to_async
-def get_user(user_id):
-    try:
-        return User.objects.get(id=user_id)
-    except User.DoesNotExist:
-        return AnonymousUser()
+# @database_sync_to_async
+# def get_user(user_id):
+#     try:
+#         return User.objects.get(id=user_id)
+#     except User.DoesNotExist:
+#         return AnonymousUser()
 
 
-@database_sync_to_async
-def create_message(data):
-    sender = User.objects.get(id=data['senderID'])
-    receiver = RoomChat.objects.get(id=data['receiverID'])
-    message = Message.objects.create(
-        senderID=sender,
-        receiverID=receiver,
-        content=data['content']
-    )
-    receiver.updated = datetime.datetime.now()
-    receiver.save()
+# @database_sync_to_async
+# def create_message(data):
+#     sender = User.objects.get(id=data['senderID'])
+#     receiver = RoomChat.objects.get(id=data['receiverID'])
+#     message = Message.objects.create(
+#         senderID=sender,
+#         receiverID=receiver,
+#         content=data['content']
+#     )
+#     receiver.updated = datetime.datetime.now()
+#     receiver.save()
 
 
 class RoomConsumer(AsyncJsonWebsocketConsumer):
@@ -63,13 +63,13 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
         print('User', self.scope['user'].pk, ' disconnected from', self.chat_room, 'close code ', str(close_code))
         await self.channel_layer.group_discard(self.chat_room, self.channel_name)
 
-    async def receive_json(self, content, **kwargs):
-        content['senderID'] = self.scope['user'].pk
-        content['receiverID'] = self.chat_room
-        await create_message(content)
-        # response = {'type': 'message', 'data': message}
-        # await self.send_json(response)
-        # await self.channel_layer.group_send(self.chat_room, response)
+    # async def receive_json(self, content, **kwargs):
+    #     content['senderID'] = self.scope['user'].pk
+    #     content['receiverID'] = self.chat_room
+    #     await create_message(content)
+    #     response = {'type': 'message', 'data': message}
+    #     await self.send_json(response)
+    #     await self.channel_layer.group_send(self.chat_room, response)
 
     async def message(self, content, close=False):
         """
