@@ -1,0 +1,57 @@
+[
+{
+    "model": "chat.membership",
+    "pk": 1,
+    "fields": {
+        "user": 1,
+        "room_chat": 1,
+        "date_joined": "2023-04-29",
+        "role": null,
+        "nickname": null
+    }
+},
+{
+    "model": "chat.membership",
+    "pk": 2,
+    "fields": {
+        "user": 2,
+        "room_chat": 1,
+        "date_joined": "2023-04-29",
+        "role": null,
+        "nickname": null
+    }
+},
+{
+    "model": "chat.membership",
+    "pk": 9,
+    "fields": {
+        "user": 2,
+        "room_chat": 2,
+        "date_joined": "2023-04-29",
+        "role": "member",
+        "nickname": null
+    }
+},
+{
+    "model": "chat.membership",
+    "pk": 10,
+    "fields": {
+        "user": 3,
+        "room_chat": 2,
+        "date_joined": "2023-04-29",
+        "role": "member",
+        "nickname": null
+    }
+},
+{
+    "model": "chat.membership",
+    "pk": 11,
+    "fields": {
+        "user": 1,
+        "room_chat": 2,
+        "date_joined": "2023-04-29",
+        "role": "admin",
+        "nickname": null
+    }
+}
+]

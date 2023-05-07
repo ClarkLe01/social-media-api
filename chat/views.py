@@ -18,19 +18,25 @@ class RoomChatCreateView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         data = {key: value for (key, value) in request.data.items()}
         members = list(User.objects.get(id=x) for x in data['members'].split(','))
-        members.append(request.user)
         if len(members) == 0 or (
                 len(request.FILES.getlist('chatFiles')) == 0 and len(request.data.get('content')) == 0):
             return Response({'error': 'Created Failed'}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = self.get_serializer(data={
             'roomName': '',
-            'isGroup': True if len(members) > 2 else False,
+            'isGroup': True if len(members) > 1 else False,
         })
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         room = RoomChat.objects.get(id=serializer.data['id'])
-        room.members.set(members)
+        # room.members.set(members)
+        if room.isGroup:
+            room.members.set(members, through_defaults={"role": 'member'})
+            room.members.add(request.user, through_defaults={"role": 'admin'})
+        else:
+            room.members.add(members, through_defaults={"role": 'member'})
+            room.members.add(request.user, through_defaults={"role": 'member'})
+
         try:
             if len(request.FILES.getlist('chatFiles')) > 0:
                 images = []

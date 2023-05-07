@@ -22,8 +22,8 @@ class RoomChat(models.Model):
 
 
 class Membership(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    room_chat = models.ForeignKey(RoomChat, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_membership')
+    room_chat = models.ForeignKey(RoomChat, on_delete=models.CASCADE, related_name='room_membership')
     date_joined = models.DateField(auto_now_add=True)
     role = models.CharField(max_length=64, null=True, blank=True)
     nickname = models.CharField(max_length=255, null=True, blank=True)
@@ -41,7 +41,7 @@ class File(models.Model):
     instance = models.FileField(upload_to=user_project_directory_path)
     type = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True)
-    room = models.ForeignKey(RoomChat, blank=True, null=True, on_delete=models.CASCADE)
+    room = models.ForeignKey(RoomChat, blank=True, null=True, on_delete=models.CASCADE, related_name='file')
 
     class Meta:
         ordering = ('created',)

@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     "notification",
     "chat",
     "friend",
+    "post",
     "debug_toolbar",
 ]
 
