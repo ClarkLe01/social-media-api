@@ -43,3 +43,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         instance = self.Meta.model.objects.create_user(**validated_data)
         return instance
+
+    def update(self, instance, validated_data):
+        if 'password' in validated_data.keys():
+            instance.set_password(validated_data['password'])
+            instance.save()
+        return instance

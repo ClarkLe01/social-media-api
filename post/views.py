@@ -1,6 +1,6 @@
 from django.db.models import Q
 from rest_framework.exceptions import ValidationError
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, get_object_or_404
 from rest_framework.response import Response
 from .serializers import (
     CreatePostSerializer,
@@ -8,7 +8,9 @@ from .serializers import (
     CreatePostImageSerializer,
     PostComment,
     PostDetailSerializer,
-    CreatePostCommentSerializer, PostCommentDetailSerializer,
+    CreatePostCommentSerializer,
+    PostCommentDetailSerializer,
+    PostInteractionsDetailSerializer,
 )
 from rest_framework import generics, permissions, status, mixins
 from .models import Post, PostInteraction, PostComment, Image
@@ -42,7 +44,8 @@ class PostCreateView(generics.CreateAPIView):
         for file in request.FILES.getlist('files'):
             Image.objects.create(
                 post=new_post,
-                file=file
+                file=file,
+                owner=request.user
             )
         can_see = []
         friends = Friend.objects.filter(status=True).filter(
@@ -86,7 +89,7 @@ class PostRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        if request.user.id == instance.owner.id or request.user in instance.can_see.all():
+        if request.user.id == instance.owner.id or request.user in instance.can_see.all() or instance.status == 'public':
             serializer = self.get_serializer(instance)
             return Response(serializer.data)
         else:
@@ -150,7 +153,7 @@ class CommentListView(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         post = Post.objects.get(pk=self.kwargs.get('pk'))
-        if post.owner != request.user and request.user not in post.can_see.all():
+        if post.owner != request.user and request.user not in post.can_see.all() and post.status != 'public':
             return Response('You dont have permission on this post', status=status.HTTP_403_FORBIDDEN)
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
@@ -170,7 +173,7 @@ class CommentCreateView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         data = {key: value for (key, value) in request.data.items()}
         post = Post.objects.get(pk=data['post'])
-        if post.owner != request.user and request.user not in post.can_see.all():
+        if post.owner != request.user and request.user not in post.can_see.all() and post.status != 'public':
             return Response('You dont have permission on this post', status=status.HTTP_403_FORBIDDEN)
         data['user'] = request.user.id
         serializer = self.get_serializer(data=data)
@@ -210,3 +213,34 @@ class CommentUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
             return Response('You dont have permission on this comment', status=status.HTTP_403_FORBIDDEN)
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class InteractionAPIView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = PostInteraction.objects.all()
+    serializer_class = PostInteractionsDetailSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        post = Post.objects.get(pk=kwargs.get('pk'))
+        if post.owner != request.user and request.user not in post.can_see.all() and post.status != 'public':
+            return Response('You dont have permission to interact on this post', status=status.HTTP_403_FORBIDDEN)
+        interaction = self.queryset.get_or_create(post=post, user=request.user)
+        serializer = self.get_serializer(interaction[0])
+        return Response(serializer.data)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        post = Post.objects.get(pk=kwargs.get('pk'))
+        if post.owner != request.user and request.user not in post.can_see.all() and post.status != 'public':
+            return Response('You dont have permission to interact on this post', status=status.HTTP_403_FORBIDDEN)
+        instance = self.queryset.get_or_create(post=post, user=request.user)
+        serializer = self.get_serializer(instance[0], data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)

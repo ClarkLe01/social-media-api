@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import Q
 from rest_framework import serializers
 from .models import Post, PostInteraction, PostComment, Image
 from chat.serializers import MemberSerializer
@@ -45,10 +46,10 @@ class PostDetailSerializer(serializers.ModelSerializer):
         return None
 
     def get_interactions(self, obj):
-        interactions = PostInteraction.objects.filter(post=obj)
+        interactions = PostInteraction.objects.filter(Q(post=obj) & ~Q(type='unlike'))
         if len(interactions) > 0:
             return CreatePostInteractionSerializer(interactions, many=True).data
-        return None
+        return []
 
 
 class PostInteractionsDetailSerializer(serializers.ModelSerializer):
@@ -57,6 +58,10 @@ class PostInteractionsDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostInteraction
         fields = '__all__'
+
+    def create(self, validated_data):
+        instance, _ = PostInteraction.objects.get_or_create(**validated_data)
+        return instance
 
 
 class PostCommentDetailSerializer(serializers.ModelSerializer):

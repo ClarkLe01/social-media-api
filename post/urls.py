@@ -7,6 +7,7 @@ from .views import (
     CommentListView,
     CommentCreateView,
     CommentUpdateDeleteView,
+    InteractionAPIView
 )
 
 
@@ -19,4 +20,5 @@ urlpatterns = [
     path('/<int:pk>/comments', CommentListView.as_view(), name='post_comments'),
     path('/comment/new', CommentCreateView.as_view(), name='new_comment'),
     path('/comment/<int:pk>', CommentUpdateDeleteView.as_view(), name='update_delete_comment'),
+    path('/<int:pk>/interaction', InteractionAPIView.as_view(), name='user_interaction'),
 ]
