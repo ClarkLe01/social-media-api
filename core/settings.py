@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
+
 # import sentry_sdk
 # from sentry_sdk import capture_message
 # from sentry_sdk.integrations.django import DjangoIntegration
@@ -78,6 +79,7 @@ INSTALLED_APPS = [
     "user",
     "notification",
     "chat",
+    "calling",
     "friend",
     "post",
     "debug_toolbar",
@@ -266,12 +268,10 @@ CHANNEL_LAYERS = {
     },
 }
 
-# INTERNAL_IPS = [
-#     # ...
-#     "127.0.0.1",
-#     "localhost",
-#     # ...
-# ]
+VIDEOSDK_API_ENDPOINT = "https://api.videosdk.live"
+VIDEOSDK_API_KEY = os.environ.get("VIDEOSDK_API_KEY", None)
+VIDEOSDK_SECRET_KEY = os.environ.get("VIDEOSDK_SECRET_KEY", None)
+
 
 if DEBUG:
     import socket  # only if you haven't already imported this

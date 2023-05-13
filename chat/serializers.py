@@ -13,7 +13,7 @@ class FileSerializer(serializers.ModelSerializer):
 class MemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'email', 'first_name', 'last_name', 'avatar')
+        fields = ('id', 'email', 'first_name', 'last_name', 'avatar', 'online')
 
 
 class RoomChatCreateSerializer(serializers.ModelSerializer):
