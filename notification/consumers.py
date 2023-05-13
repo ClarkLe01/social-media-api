@@ -22,11 +22,12 @@ class NotificationConsumer(AsyncJsonWebsocketConsumer):
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         print('User', self.scope['user'].pk, ' connected to', self.channel_name)
         await self.send_json({
-            'alert': 'User' + str(self.scope['user'].pk) + ' connected to' + self.channel_name + 'successful'
+            'alert': 'User' + str(self.scope['user'].pk) + ' connected to' + self.channel_name + ' successful'
         })
 
     async def disconnect(self, close_code):
         print('User', self.scope['user'].pk, ' disconnected')
+        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     async def receive_json(self, content, **kwargs):
         print('WebSocket message received:', content)

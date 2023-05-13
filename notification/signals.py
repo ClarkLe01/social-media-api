@@ -13,10 +13,12 @@ def send_notification(sender, instance, created, **kwargs):
     # send a notification to the specific user
     if created:
         channel_layer = channels.layers.get_channel_layer()
+        data = NotificationSerializer(instance, many=False).data
+        print(data)
         async_to_sync(channel_layer.group_send)(
             f"user_{instance.receiverID.id}",
             {
                 "type": "notify",
-                "value": NotificationSerializer(instance, many=False).data
+                "value": data
             },
         )

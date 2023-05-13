@@ -1,0 +1,29 @@
+[
+{
+    "model": "chat.roomchat",
+    "pk": 1,
+    "fields": {
+        "roomName": null,
+        "isGroup": false,
+        "members": [
+            1,
+            2
+        ],
+        "updated": "2023-04-18T15:02:50.617Z"
+    }
+},
+{
+    "model": "chat.roomchat",
+    "pk": 2,
+    "fields": {
+        "roomName": null,
+        "isGroup": true,
+        "members": [
+            1,
+            2,
+            3
+        ],
+        "updated": "2023-04-18T15:03:54.741Z"
+    }
+}
+]

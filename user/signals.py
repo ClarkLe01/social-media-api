@@ -29,4 +29,3 @@ def delete_old_image(sender, instance, created, **kwargs):
         old_image = getattr(instance, _OLD_FILEFIELD)
         if os.path.isfile(old_image.path):
             default_storage.delete(old_image.path)
-
