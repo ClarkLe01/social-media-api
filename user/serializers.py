@@ -1,5 +1,7 @@
 from django.conf import settings
 from rest_framework import serializers
+from rest_framework.serializers import raise_errors_on_nested_writes
+from rest_framework.utils import model_meta
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.utils.translation import gettext_lazy as _
 from .models import User
@@ -22,7 +24,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'gender', 'birthday', 'password', 'first_name', 'last_name']
+        fields = ['id', 'email', 'gender', 'birthday', 'password', 'first_name', 'last_name', 'online']
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -42,4 +44,25 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         instance = self.Meta.model.objects.create_user(**validated_data)
+        return instance
+
+    def update(self, instance, validated_data):
+        raise_errors_on_nested_writes('update', self, validated_data)
+        info = model_meta.get_field_info(instance)
+
+        # Simply set each attribute on the instance, and then save it.
+        # Note that unlike `.create()` we don't need to treat many-to-many
+        # relationships as being a special case. During updates we already
+        # have an instance pk for the relationships to be associated with.
+        m2m_fields = []
+        for attr, value in validated_data.items():
+            if attr in info.relations and info.relations[attr].to_many:
+                m2m_fields.append((attr, value))
+            else:
+                setattr(instance, attr, value)
+
+        if 'password' in validated_data.keys():
+            instance.set_password(validated_data.pop('password'))
+
+        instance.save()
         return instance

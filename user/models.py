@@ -101,6 +101,7 @@ class User(AbstractUser):
     birthday = models.DateTimeField()
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    online = models.BooleanField(default=False)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ["first_name", "last_name", "birthday", "gender"]
     objects = CustomUserManager()
