@@ -98,3 +98,16 @@ class UpdateMyProfileView(generics.UpdateAPIView):
             instance._prefetched_objects_cache = {}
 
         return Response(serializer.data)
+
+
+class ValidatePassword(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        password = request.data.get('password', None)
+        user = User.objects.get(email=request.user.email)
+        return Response(data={"status": user.check_password(password)}, status=status.HTTP_200_OK)
+        # if serializer.is_valid():
+        #     serializer.save()
+        #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
