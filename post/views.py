@@ -6,7 +6,6 @@ from .serializers import (
     CreatePostSerializer,
     CreatePostInteractionSerializer,
     CreatePostImageSerializer,
-    PostComment,
     PostDetailSerializer,
     CreatePostCommentSerializer,
     PostCommentDetailSerializer,
@@ -24,7 +23,7 @@ class PostCreateView(generics.CreateAPIView):
     queryset = Post.objects.all()
     serializer_class = CreatePostSerializer
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):  # noqa: C901
         data = {key: value for (key, value) in request.data.items()}
         can_see_data = data.pop('canSee')
         not_see_data = data.pop('notSee')
@@ -47,7 +46,7 @@ class PostCreateView(generics.CreateAPIView):
                 file=file,
                 owner=request.user
             )
-        can_see = []
+        can_see = []  # noqa: F841
         friends = Friend.objects.filter(status=True).filter(
             Q(requestID=request.user.id) | Q(responseID=request.user.id))
         if serializer.data['status'] == 'friends' or serializer.data['status'] == 'friendExcepts':
@@ -62,13 +61,14 @@ class PostCreateView(generics.CreateAPIView):
         return Response(PostDetailSerializer(new_post, many=False).data, status=status.HTTP_201_CREATED)
 
 
-class OwnerPostListView(generics.ListAPIView):
+class UserPostListView(generics.ListAPIView):
     serializer_class = PostDetailSerializer
     permission_classes = [permissions.IsAuthenticated]
     queryset = Post.objects.all()
 
     def get_queryset(self):
-        queryset = Post.objects.filter(owner=self.request.user).order_by('-created')
+        user_id = self.kwargs.get('pk')
+        queryset = Post.objects.filter(owner__id=user_id).order_by('-created')
         return queryset
 
 

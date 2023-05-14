@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     PostCreateView,
-    OwnerPostListView,
+    UserPostListView,
     PostListView,
     PostRetrieveUpdateDeleteView,
     CommentListView,
@@ -14,7 +14,7 @@ from .views import (
 app_name = 'post'
 urlpatterns = [
     path('/new', PostCreateView.as_view(), name='post_new'),
-    path('/me', OwnerPostListView.as_view(), name='my_posts'),
+    path('/user/<int:pk>', UserPostListView.as_view(), name='my_posts'),
     path('/list', PostListView.as_view(), name='post_list'),
     path('/<int:pk>', PostRetrieveUpdateDeleteView.as_view(), name='post_detail'),
     path('/<int:pk>/comments', CommentListView.as_view(), name='post_comments'),
