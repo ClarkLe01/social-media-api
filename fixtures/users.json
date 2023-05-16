@@ -190,5 +190,29 @@
         "groups": [],
         "user_permissions": []
     }
+},
+{
+    "model": "user.user",
+    "pk": 9,
+    "fields": {
+        "password": "pbkdf2_sha256$390000$K7ikWgbKmAPv0jHLC5obey$p80AFTB3LBo+tzww7iutbuXp8dS8p4hcXTDMli49+wA=",
+        "last_login": null,
+        "is_superuser": true,
+        "username": "lenguyenhunganh2001@gmail.com",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2023-02-14T16:12:21.241Z",
+        "email": "lenguyenhunganh2001@gmail.com",
+        "first_name": "Le",
+        "last_name": "Anh",
+        "cover": "default/cover_default.png",
+        "avatar": "default/avatar_default.jpg",
+        "gender": "True",
+        "birthday": "2001-02-05T00:00:00Z",
+        "created": "2023-04-11T08:53:28.241Z",
+        "updated": "2023-04-11T08:53:28.241Z",
+        "groups": [],
+        "user_permissions": []
+    }
 }
 ]

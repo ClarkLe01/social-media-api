@@ -1,4 +1,4 @@
-from django.core.signing import Signer
+from django.conf import settings
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -7,6 +7,11 @@ from rest_framework.views import APIView
 from .serializers import UserSerializer, MyTokenObtainPairSerializer, UserProfileSerializer
 from .models import User
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django.contrib.auth.tokens import default_token_generator
+from django.template.loader import get_template
+from django.core.signing import Signer
+from user.tasks import send_email
+
 signer = Signer(salt='extra')
 
 
@@ -105,5 +110,86 @@ class ValidatePassword(APIView):
 
     def post(self, request, format=None):
         password = request.data.get('password', None)
+        print(request.data)
         user = User.objects.get(email=request.user.email)
         return Response(data={"status": user.check_password(password)}, status=status.HTTP_200_OK)
+
+
+class RequestForgotPassword(APIView):
+
+    def post(self, request, format=None):
+        email = request.data['email']
+        if User.objects.filter(email=email).exists():
+            user = User.objects.get(email__exact=email)
+
+            # Reset password email
+            current_site = settings.FRONT_END_HOST
+            mail_subject = 'Reset Your Password'
+            uid = signer.sign(int(user.pk))
+            token = default_token_generator.make_token(user)
+            context_message = {
+                'user': user,
+                'domain': current_site,
+                'uid': uid,
+                'token': token,
+            }
+            messages = get_template('email_rest_password.html').render(context_message)  # noqa: 501
+            send_email.delay(mail_subject, messages, recipients=[email])
+            # send_email = EmailMessage(mail_subject, messages, to=[email])
+            # send_email.content_subtype = 'html'
+            # send_email.send(fail_silently=False)
+            data = {
+                "status": True,
+                "message": 'Password reset email has been sent to your email address.',
+                "uid": uid,
+                "token": token,
+            }
+        else:
+            data = {
+                "status": False,
+                "message": 'Account does not exist!'
+            }
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class ResetForgotPassword(APIView):
+
+    def get(self, request, uidb64, token, format=None):
+        print(uidb64)
+        print(token)
+        try:
+            uid = int(signer.unsign(uidb64))
+            user = User.objects.get(id=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            data = {
+                "status": True,
+                "message": 'Please reset your password'
+            }
+        else:
+            data = {
+                "status": False,
+                "message": 'This link has been expired!'
+            }
+        return Response(data, status=status.HTTP_200_OK)
+
+    def post(self, request, uidb64, token, format=None):
+        password = request.data['password']
+        confirm_password = request.data['confirm_password']
+        if password == confirm_password:
+            uid = int(signer.unsign(uidb64))
+            user = User.objects.get(id=uid)
+            user.set_password(password)
+            user.save()
+            data = {
+                "status": 1,
+                "message": 'Reset your password successfully. You can login your account now!'
+            }
+        else:
+            data = {
+                "status": -1,
+                "message": 'Your new password and the confirmation is not equal!'
+            }
+        return Response(data, status=status.HTTP_200_OK)

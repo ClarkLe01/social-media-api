@@ -1,5 +1,14 @@
 from django.urls import path
-from .views import MyTokenObtainPairView, MyProfileView, UserRegisterAPIView, UserProfileView, UpdateMyProfileView, ValidatePassword
+from .views import (
+    MyTokenObtainPairView,
+    MyProfileView,
+    UserRegisterAPIView,
+    UserProfileView,
+    UpdateMyProfileView,
+    ValidatePassword,
+    RequestForgotPassword,
+    ResetForgotPassword
+)
 
 
 app_name = 'user'
@@ -10,4 +19,6 @@ urlpatterns = [
     path('/profile/update', UpdateMyProfileView.as_view(), name='update_profile'),
     path('/profile/<int:pk>', UserProfileView.as_view(), name='people_profile'),
     path('/validate/password', ValidatePassword.as_view(), name='validate_password'),
+    path('/password/reset/request', RequestForgotPassword.as_view(), name='request_reset_password'),
+    path('/password/reset/<str:uidb64>/<str:token>', ResetForgotPassword.as_view(), name='reset_password')
 ]
