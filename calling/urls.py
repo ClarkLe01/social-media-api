@@ -5,6 +5,9 @@ from .views import (
     ValidateMeetingAPIView,
     EndMeetingAPIView,
     GetRoomAPIView,
+    AccpetCallAPIView,
+    RejectCallAPIView,
+    RemoveParticipantsAPIView,
 )
 
 
@@ -15,4 +18,7 @@ urlpatterns = [
     path('/room/validate', ValidateMeetingAPIView.as_view(), name='validate_meeting'),
     path('/room/end', EndMeetingAPIView.as_view(), name='end_meeting'),
     path('/room', GetRoomAPIView.as_view(), name='get_room'),
+    path('/room/accept', AccpetCallAPIView.as_view(), name='accept_call'),
+    path('/room/reject', RejectCallAPIView.as_view(), name='reject_call'),
+    path('/sessions/participants/remove', RemoveParticipantsAPIView.as_view(), name='remove_participants'),
 ]

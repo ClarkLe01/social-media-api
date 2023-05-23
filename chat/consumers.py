@@ -50,7 +50,7 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
             else:
                 await self.send_json({
                     'alert': 'User' + str(
-                        self.scope['user'].pk) + ' dont join to room_' + self.chat_room
+                        self.scope['user'].pk) + ' can not join to room_' + self.chat_room
                 })
                 await self.close()
         except (RoomChat.DoesNotExist, Disconnected):
@@ -63,21 +63,25 @@ class RoomConsumer(AsyncJsonWebsocketConsumer):
         print('User', self.scope['user'].pk, ' disconnected from room_', self.chat_room, 'close code ', str(close_code))
         await self.channel_layer.group_discard(self.chat_room, self.channel_name)
 
-    # async def receive_json(self, content, **kwargs):
-    #     content['senderID'] = self.scope['user'].pk
-    #     content['receiverID'] = self.chat_room
-    #     await create_message(content)
-    #     response = {'type': 'message', 'data': message}
-    #     await self.send_json(response)
-    #     await self.channel_layer.group_send(self.chat_room, response)
-
     async def message(self, content, close=False):
         """
         Encode the given content as JSON and send it to the client.
         """
         await super().send(text_data=await self.encode_json(content), close=close)
 
-    async def add_members(self, content, close=False):
+    async def add_member(self, content, close=False):
+        """
+        Encode the given content as JSON and send it to the client.
+        """
+        await super().send(text_data=await self.encode_json(content), close=close)
+
+    async def remove_member(self, content, close=False):
+        """
+        Encode the given content as JSON and send it to the client.
+        """
+        await super().send(text_data=await self.encode_json(content), close=close)
+
+    async def leave_room(self, content, close=False):
         """
         Encode the given content as JSON and send it to the client.
         """

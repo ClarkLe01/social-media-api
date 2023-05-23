@@ -8,7 +8,9 @@ from .views import (
     LatestMessageRetrieveView,
     SendMessageView,
     MessageListView,
-    SeenMessageListView
+    SeenMessageListView,
+    AddMemberChatAPIView,
+    RemoveMemberChatAPIView,
 )
 
 
@@ -19,7 +21,8 @@ urlpatterns = [
     path('/room/update/<int:pk>', RoomChatUpdateView.as_view(), name='room_update'),
     path('/room/detail/<int:roomId>', RoomChatDetailView.as_view(), name='room_detail'),
     path('/room/members/<int:roomId>', MembersDetailListView.as_view(), name='members_detail'),
-    path('/room/member/update/<int:memberId>', MembersDetailListView.as_view(), name='room_detail'),
+    path('/room/member/add', AddMemberChatAPIView.as_view(), name='add_member'),
+    path('/room/member/remove', RemoveMemberChatAPIView.as_view(), name='remove_member'),
     path('/message/latest/<int:roomId>', LatestMessageRetrieveView.as_view(), name='last_message'),
     path('/message/send', SendMessageView.as_view(), name='send_message'),
     path('/message/list/<int:roomId>', MessageListView.as_view(), name='message_list'),

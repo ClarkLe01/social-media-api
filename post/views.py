@@ -108,25 +108,26 @@ class PostRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
                 # If 'prefetch_related' has been applied to a queryset, we need to
                 # forcibly invalidate the prefetch cache on the instance.
                 instance._prefetched_objects_cache = {}
-            # can_see_data = data.pop('canSee')
-            # not_see_data = data.pop('notSee')
-            # try:
-            #     can_see_data = list(int(x) for x in can_see_data.split(','))
-            # except ValueError:
-            #     can_see_data = []
-            # try:
-            #     not_see_data = list(int(x) for x in not_see_data.split(','))
-            # except ValueError:
-            #     not_see_data = []
-            # if len(request.FILES.getlist('files')) > 0:
-            #     images = Image.objects.filter(post=instance)
-            #     for image in images:
-            #         image.delete()
-            #     for file in request.FILES.getlist('files'):
-            #         Image.objects.create(
-            #             post=instance,
-            #             file=file
-            #         )
+            can_see_data = data.pop('canSee', '')
+            not_see_data = data.pop('notSee', '')
+            try:
+                can_see_data = list(int(x) for x in can_see_data.split(','))
+            except ValueError:
+                can_see_data = []
+            try:
+                not_see_data = list(int(x) for x in not_see_data.split(','))
+            except ValueError:
+                not_see_data = []
+            if len(request.FILES.getlist('files')) > 0:
+                images = Image.objects.filter(post=instance)
+                for image in images:
+                    image.delete()
+                for file in request.FILES.getlist('files'):
+                    Image.objects.create(
+                        post=instance,
+                        file=file,
+                        owner=request.user
+                    )
             return Response(PostDetailSerializer(instance, many=False).data)
         else:
             return Response('You dont have permission on this post', status=status.HTTP_403_FORBIDDEN)

@@ -2,6 +2,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 import channels.layers
 from asgiref.sync import async_to_sync
+from rest_framework.views import APIView
+
 from .serializers import RoomChatCreateSerializer, MessageSerializer, SeenSerializer, RoomChatSerializer, \
     MessageCreateSerializer, RoomChatListSerializer, FileSerializer, MemberSerializer, MembershipSerializer
 from rest_framework import generics, permissions, status
@@ -333,3 +335,33 @@ class SeenMessageListView(generics.ListAPIView):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class AddMemberChatAPIView(APIView):
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        data = {key: value for (key, value) in request.data.items()}
+        memberId = data.pop('memberId', None)
+        roomId = data.pop('roomId', None)
+        if memberId is not None and roomId is not None:
+            roomChat = RoomChat.objects.get(id=roomId)
+            user = User.objects.get(id=memberId)
+            roomChat.members.add(user, through_defaults={"role": 'member'})
+            return Response("Ok", status=status.HTTP_200_OK)
+        return Response({"error": "Please give fully information"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class RemoveMemberChatAPIView(APIView):
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        data = {key: value for (key, value) in request.data.items()}
+        memberId = data.pop('memberId', None)
+        roomId = data.pop('roomId', None)
+        if memberId is not None and roomId is not None:
+            roomChat = RoomChat.objects.get(id=roomId)
+            user = User.objects.get(id=memberId)
+            roomChat.members.remove(user)
+            return Response("Ok", status=status.HTTP_200_OK)
+        return Response({"error": "Please give fully information"}, status=status.HTTP_400_BAD_REQUEST)

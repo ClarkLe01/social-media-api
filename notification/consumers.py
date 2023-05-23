@@ -1,3 +1,4 @@
+from asgiref.sync import async_to_sync
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from django.contrib.auth.models import AnonymousUser
@@ -42,7 +43,35 @@ class NotificationConsumer(AsyncJsonWebsocketConsumer):
             print('WebSocket message received:', content)
             await update_user_status(self.scope['user'].pk, True)
 
+        # if content['type'] == 'acceptCall':
+        #     print('WebSocket message acceptCall:', content)
+        #     channel_layer = get_channel_layer()
+        #     async_to_sync(channel_layer.group_send)(
+        #         f"roomCall_{member.id}",
+        #         {
+        #             "type": "calling",
+        #             "value": data
+        #         },
+        #     )
+
+        # if content['type'] == 'rejectCall':
+        #     channel_layer = get_channel_layer()
+        #     print(content['value']['roomId'])
+        #     await channel_layer.group_send(
+        #         f"roomCall_{content['value']['roomId']}",
+        #         {
+        #             "type": content['type'],
+        #             "value": content['value']
+        #         },
+        #     )
+
     async def notify(self, content, close=False):
+        """
+        Encode the given content as JSON and send it to the client.
+        """
+        await super().send(text_data=await self.encode_json(content), close=close)
+
+    async def calling(self, content, close=False):
         """
         Encode the given content as JSON and send it to the client.
         """

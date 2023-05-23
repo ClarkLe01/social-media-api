@@ -26,6 +26,7 @@ sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins=[])
 import notification.routing  # noqa
 import chat.routing  # noqa
 import core.routing # noqa
+import calling.routing
 
 application = ProtocolTypeRouter(
     {
@@ -34,6 +35,7 @@ application = ProtocolTypeRouter(
             JWTAuthMiddlewareStack(URLRouter([
                 *notification.routing.websocket_urlpatterns,
                 *chat.routing.websocket_urlpatterns,
+                *calling.routing.websocket_urlpatterns,
                 *core.routing.websocket_urlpatterns,
             ])),
         ),
