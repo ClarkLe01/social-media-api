@@ -45,7 +45,7 @@ class CallingConsumer(AsyncJsonWebsocketConsumer):
     async def disconnect(self, close_code):
         print('User', self.scope['user'].pk, ' disconnected from roomCall_', self.room_id, 'close code ',
               str(close_code))
-        self.members.pop(self.scope['user'].pk)
+        self.members.remove(self.scope['user'].pk)
         await self.channel_layer.group_discard(self.room_id, self.channel_name)
 
     async def receive_json(self, content, **kwargs):
