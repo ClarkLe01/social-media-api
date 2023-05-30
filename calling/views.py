@@ -106,11 +106,35 @@ class EndMeetingAPIView(APIView):
     def get(self, request, *args, **kwargs):
         roomId = request.GET.get('roomId', None)
         token = request.GET.get('token', None)
-        url = settings.VIDEOSDK_API_ENDPOINT + "/v2/rooms/deactivate"
-        headers = {'Authorization': token, 'Content-Type': 'application/json'}
-        data = {"roomId": roomId}
-        res = requests.post(url, json=data, headers=headers)
-        return Response(data=res.json(), status=res.status_code)
+        try:
+            call = Call.objects.get(roomId=roomId, token=token)
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f"roomCall_{call.roomId}",
+                {
+                    "type": "endCall",
+                    "value": CallSerializer(call, many=False).data
+                },
+            )
+            url = settings.VIDEOSDK_API_ENDPOINT + "/v2/rooms/deactivate"
+            headers = {'Authorization': token, 'Content-Type': 'application/json'}
+            data = {"roomId": roomId}
+            res = requests.post(url, json=data, headers=headers)
+            return Response(
+                data={
+                    "statusCode": status.HTTP_200_OK,
+                    "message": "Ok"
+                },
+                status=status.HTTP_200_OK
+            )
+        except Call.DoesNotExist:
+            return Response(
+                data={
+                    "statusCode": status.HTTP_400_BAD_REQUEST,
+                    "error": "Call does not exist"
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
 
 
 class GetRoomAPIView(APIView):

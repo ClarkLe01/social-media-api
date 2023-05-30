@@ -2,6 +2,8 @@ from django.db.models import Q
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView, get_object_or_404
 from rest_framework.response import Response
+
+from notification.models import Notification
 from .serializers import (
     CreatePostSerializer,
     CreatePostInteractionSerializer,
@@ -53,11 +55,53 @@ class PostCreateView(generics.CreateAPIView):
             for friend in friends:
                 if friend.responseID == request.user and friend.requestID.id not in not_see_data:
                     new_post.can_see.add(friend.requestID.id)
+                    Notification.objects.create(
+                        senderID=request.user,
+                        receiverID=friend.requestID,
+                        type='post-create-' + str(serializer.data.get('id')),
+                        content='create new post',
+                        read=False,
+                    )
                 if friend.requestID == request.user and friend.responseID.id not in not_see_data:
                     new_post.can_see.add(friend.responseID.id)
+                    Notification.objects.create(
+                        senderID=request.user,
+                        receiverID=friend.responseID,
+                        type='post-create-' + str(serializer.data.get('id')),
+                        content='create new post',
+                        read=False,
+                    )
         if serializer.data['status'] == 'specificFriends':
             for user_id in can_see_data:
-                new_post.can_see.add(User.objects.get(pk=user_id))
+                spec_user = User.objects.get(pk=user_id)
+                new_post.can_see.add(spec_user)
+                Notification.objects.create(
+                    senderID=request.user,
+                    receiverID=spec_user,
+                    type='post-create-' + str(serializer.data['id']),
+                    content='create new post',
+                    read=False,
+                )
+
+        if serializer.data['status'] == 'public':
+            for friend in friends:
+                if friend.responseID == request.user:
+                    Notification.objects.create(
+                        senderID=request.user,
+                        receiverID=friend.requestID,
+                        type='post-create-' + str(serializer.data.get('id')),
+                        content='create new post',
+                        read=False,
+                    )
+                if friend.requestID == request.user:
+                    Notification.objects.create(
+                        senderID=request.user,
+                        receiverID=friend.responseID,
+                        type='post-create-' + str(serializer.data.get('id')),
+                        content='create new post',
+                        read=False,
+                    )
+
         return Response(PostDetailSerializer(new_post, many=False).data, status=status.HTTP_201_CREATED)
 
 
@@ -180,6 +224,13 @@ class CommentCreateView(generics.CreateAPIView):
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+        Notification.objects.create(
+            senderID=request.user,
+            receiverID=post.owner,
+            type='comment-create-' + str(post.id),
+            content='add comment to your post',
+            read=False,
+        )
         data = PostCommentDetailSerializer(PostComment.objects.get(pk=serializer.data['id']), many=False).data
         headers = self.get_success_headers(data)
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
@@ -243,5 +294,12 @@ class InteractionAPIView(generics.RetrieveUpdateDestroyAPIView):
             # If 'prefetch_related' has been applied to a queryset, we need to
             # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}
-
+        if serializer.data['type'] != 'unlike':
+            Notification.objects.create(
+                senderID=request.user,
+                receiverID=post.owner,
+                type='interaction-' + serializer.data.get('type') + '-' + str(post.id),
+                content=serializer.data.get('type') + ' to your post',
+                read=False,
+            )
         return Response(serializer.data)
