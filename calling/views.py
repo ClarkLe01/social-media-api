@@ -41,14 +41,14 @@ class CreateMeetingAPIView(APIView):
             roomChat = RoomChat.objects.get(id=roomChatId)
             token = data.pop('token', None)
             url = settings.VIDEOSDK_API_ENDPOINT + "/v2/rooms"
-            # data = {
-            #     'autoCloseConfig': {
-            #         'type': 'session-end-and-deactivate',
-            #         'duration': 60
-            #     }
-            # }
+            data = {
+                'autoCloseConfig': {
+                    'type': 'session-end-and-deactivate',
+                    'duration': 60
+                },
+            }
             headers = {'Authorization': token, 'Content-Type': 'application/json'}
-            response = requests.post(url, headers=headers)
+            response = requests.post(url, json=data, headers=headers)
             data = response.json()
             callInstance = Call.objects.create(
                 toRoomChat=roomChat,
@@ -63,6 +63,19 @@ class CreateMeetingAPIView(APIView):
             return Response(data=data)
         except RoomChat.DoesNotExist:
             return Response({'error': 'RoomChat does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        # url = settings.VIDEOSDK_API_ENDPOINT + "/v2/rooms"
+        # data = {
+        #     'autoCloseConfig': {
+        #         'type': 'session-end-and-deactivate',
+        #         'duration': 60
+        #     },
+        #     "customRoomId": "final-testing",
+        # }
+        # headers = {'Authorization': token, 'Content-Type': 'application/json'}
+        # response = requests.post(url, json=data, headers=headers)
+        # data = response.json()
+        # return Response(data=data)
 
 
 class ValidateMeetingAPIView(APIView):

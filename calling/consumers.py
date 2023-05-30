@@ -45,12 +45,20 @@ class CallingConsumer(AsyncJsonWebsocketConsumer):
     async def disconnect(self, close_code):
         print('User', self.scope['user'].pk, ' disconnected from roomCall_', self.room_id, 'close code ',
               str(close_code))
-        self.members.remove(self.scope['user'].pk)
+        if self.scope['user'].pk in self.members:
+            self.members.remove(self.scope['user'].pk)
         await self.channel_layer.group_discard(self.room_id, self.channel_name)
 
     async def receive_json(self, content, **kwargs):
         # Do something with the message content, e.g.:
-        print('WebSocket message received calling:', content)
+        if content['type'] == 'endCall':
+            print('WebSocket message received calling:', content)
+            await self.channel_layer.group_send(
+                'roomCall_' + self.room_id,
+                {
+                    "type": "endCall",
+                },
+            )
 
     async def message(self, content, close=False):
         """
@@ -73,4 +81,7 @@ class CallingConsumer(AsyncJsonWebsocketConsumer):
         await super().send(text_data=await self.encode_json(content), close=close)
 
     async def joinCall(self, content, close=False):
+        await super().send(text_data=await self.encode_json(content), close=close)
+
+    async def endCall(self, content, close=False):
         await super().send(text_data=await self.encode_json(content), close=close)
