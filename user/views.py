@@ -215,6 +215,4 @@ class UsersListView(generics.ListAPIView):
                 friend.append(friend_query.requestID.id)
             if friend_query.requestID == user:
                 friend.append(friend_query.responseID.id)
-        results = []
-        users = self.queryset.exclude(id__in=friend)
-        return users
+        return self.queryset.exclude(id__in=friend)
