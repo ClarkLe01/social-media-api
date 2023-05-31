@@ -58,7 +58,7 @@ class PostCreateView(generics.CreateAPIView):
                     Notification.objects.create(
                         senderID=request.user,
                         receiverID=friend.requestID,
-                        type='post-create-' + str(serializer.data.get('id')),
+                        type='create-post-' + str(serializer.data.get('id')),
                         content='create new post',
                         read=False,
                     )
@@ -67,7 +67,7 @@ class PostCreateView(generics.CreateAPIView):
                     Notification.objects.create(
                         senderID=request.user,
                         receiverID=friend.responseID,
-                        type='post-create-' + str(serializer.data.get('id')),
+                        type='create-post-' + str(serializer.data.get('id')),
                         content='create new post',
                         read=False,
                     )
@@ -78,7 +78,7 @@ class PostCreateView(generics.CreateAPIView):
                 Notification.objects.create(
                     senderID=request.user,
                     receiverID=spec_user,
-                    type='post-create-' + str(serializer.data['id']),
+                    type='create-post-' + str(serializer.data['id']),
                     content='create new post',
                     read=False,
                 )
@@ -89,7 +89,7 @@ class PostCreateView(generics.CreateAPIView):
                     Notification.objects.create(
                         senderID=request.user,
                         receiverID=friend.requestID,
-                        type='post-create-' + str(serializer.data.get('id')),
+                        type='create-post-' + str(serializer.data.get('id')),
                         content='create new post',
                         read=False,
                     )
@@ -97,7 +97,7 @@ class PostCreateView(generics.CreateAPIView):
                     Notification.objects.create(
                         senderID=request.user,
                         receiverID=friend.responseID,
-                        type='post-create-' + str(serializer.data.get('id')),
+                        type='create-post-' + str(serializer.data.get('id')),
                         content='create new post',
                         read=False,
                     )
@@ -227,7 +227,7 @@ class CommentCreateView(generics.CreateAPIView):
         Notification.objects.create(
             senderID=request.user,
             receiverID=post.owner,
-            type='comment-create-' + str(post.id),
+            type='create-comment-' + str(post.id),
             content='add comment to your post',
             read=False,
         )

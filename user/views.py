@@ -1,9 +1,12 @@
 from django.conf import settings
-from rest_framework import generics, status
+from django.db.models import Q
+from rest_framework import generics, status, filters
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from friend.models import Friend
 from .serializers import UserSerializer, MyTokenObtainPairSerializer, UserProfileSerializer
 from .models import User
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -11,6 +14,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.template.loader import get_template
 from django.core.signing import Signer
 from user.tasks import send_email
+from django_filters.rest_framework import DjangoFilterBackend
 
 signer = Signer(salt='extra')
 
@@ -193,3 +197,24 @@ class ResetForgotPassword(APIView):
                 "message": 'Your new password and the confirmation is not equal!'
             }
         return Response(data, status=status.HTTP_200_OK)
+
+
+class UsersListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['email', 'first_name', 'last_name']
+
+    def get_queryset(self):
+        user = self.request.user
+        friends_queries = Friend.objects.filter(status=True).filter(Q(requestID=user.id) | Q(responseID=user.id))
+        friend = [user.id]
+        for friend_query in friends_queries:
+            if friend_query.responseID == user:
+                friend.append(friend_query.requestID.id)
+            if friend_query.requestID == user:
+                friend.append(friend_query.responseID.id)
+        results = []
+        users = self.queryset.exclude(id__in=friend)
+        return users

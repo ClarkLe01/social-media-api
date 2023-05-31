@@ -11,6 +11,7 @@ from .views import (
     SeenMessageListView,
     AddMemberChatAPIView,
     RemoveMemberChatAPIView,
+    DeleteGroupChatAPIView,
 )
 
 
@@ -18,6 +19,7 @@ app_name = 'chat'
 urlpatterns = [
     path('/room/list', RoomChatListView.as_view(), name='room_list'),
     path('/room/new', RoomChatCreateView.as_view(), name='room_new'),
+    path('/room/delete', DeleteGroupChatAPIView.as_view(), name='room_delete'),
     path('/room/update/<int:pk>', RoomChatUpdateView.as_view(), name='room_update'),
     path('/room/detail/<int:roomId>', RoomChatDetailView.as_view(), name='room_detail'),
     path('/room/members/<int:roomId>', MembersDetailListView.as_view(), name='members_detail'),

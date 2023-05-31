@@ -7,12 +7,14 @@ from .views import (
     UpdateMyProfileView,
     ValidatePassword,
     RequestForgotPassword,
-    ResetForgotPassword
+    ResetForgotPassword,
+    UsersListView,
 )
 
 
 app_name = 'user'
 urlpatterns = [
+    path('/list', UsersListView.as_view(), name='user_list'),
     path('/register', UserRegisterAPIView.as_view(), name='register'),
     path('/login', MyTokenObtainPairView.as_view(), name='login'),
     path('/profile', MyProfileView.as_view(), name='profile'),

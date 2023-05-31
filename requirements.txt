@@ -58,3 +58,4 @@ aioredis
 django-debug-toolbar
 cloudinary
 PyJWT
+django-filter

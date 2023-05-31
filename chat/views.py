@@ -338,22 +338,23 @@ class SeenMessageListView(generics.ListAPIView):
 
 
 class AddMemberChatAPIView(APIView):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         data = {key: value for (key, value) in request.data.items()}
-        memberId = data.pop('memberId', None)
+        members = data.pop('members', None)
         roomId = data.pop('roomId', None)
-        if memberId is not None and roomId is not None:
-            roomChat = RoomChat.objects.get(id=roomId)
-            user = User.objects.get(id=memberId)
-            roomChat.members.add(user, through_defaults={"role": 'member'})
+        if len(members) > 0 and roomId is not None:
+            for memberId in members:
+                roomChat = RoomChat.objects.get(id=roomId)
+                user = User.objects.get(id=memberId)
+                roomChat.members.add(user, through_defaults={"role": 'member'})
             return Response("Ok", status=status.HTTP_200_OK)
         return Response({"error": "Please give fully information"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RemoveMemberChatAPIView(APIView):
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         data = {key: value for (key, value) in request.data.items()}
@@ -363,5 +364,18 @@ class RemoveMemberChatAPIView(APIView):
             roomChat = RoomChat.objects.get(id=roomId)
             user = User.objects.get(id=memberId)
             roomChat.members.remove(user)
+            return Response("Ok", status=status.HTTP_200_OK)
+        return Response({"error": "Please give fully information"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DeleteGroupChatAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        data = {key: value for (key, value) in request.data.items()}
+        roomId = data.pop('roomId', None)
+        if roomId is not None:
+            roomChat = RoomChat.objects.get(id=roomId)
+            roomChat.delete()
             return Response("Ok", status=status.HTTP_200_OK)
         return Response({"error": "Please give fully information"}, status=status.HTTP_400_BAD_REQUEST)

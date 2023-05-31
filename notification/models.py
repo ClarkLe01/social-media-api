@@ -20,6 +20,6 @@ class Notification(models.Model):
             - commentStory (comment)
             - story (story)
             - friend (add, accept), 
-        example: friend-add-3, interaction-like-4
+        example: friend-add-3, interaction-like-4, create-post-1, create-comment-1
     """
     type = models.CharField(max_length=255, blank=True, null=True)
