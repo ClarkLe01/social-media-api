@@ -19,7 +19,7 @@
         "birthday": "2001-02-05T00:00:00Z",
         "created": "2023-04-11T08:53:28.241Z",
         "updated": "2023-05-31T22:30:04.271Z",
-        "online": true,
+        "online": false,
         "groups": [],
         "user_permissions": []
     }
@@ -44,7 +44,7 @@
         "birthday": "2001-02-05T00:00:00Z",
         "created": "2023-04-11T08:53:28.241Z",
         "updated": "2023-05-31T22:32:55.864Z",
-        "online": true,
+        "online": false,
         "groups": [],
         "user_permissions": []
     }
