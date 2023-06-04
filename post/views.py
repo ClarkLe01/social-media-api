@@ -1,3 +1,5 @@
+import cloudinary
+import cloudinary.uploader
 from django.db.models import Q
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView, get_object_or_404
@@ -162,10 +164,12 @@ class PostRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
                 not_see_data = list(int(x) for x in not_see_data.split(','))
             except ValueError:
                 not_see_data = []
+
+            images = Image.objects.filter(post=instance)
+            for image in images:
+                # cloudinary.uploader.destroy(image.file.public_id)
+                image.delete()
             if len(request.FILES.getlist('files')) > 0:
-                images = Image.objects.filter(post=instance)
-                for image in images:
-                    image.delete()
                 for file in request.FILES.getlist('files'):
                     Image.objects.create(
                         post=instance,
