@@ -1,0 +1,14 @@
+[
+{
+    "model": "post.postcomment",
+    "pk": 1,
+    "fields": {
+        "content": "Nice",
+        "file": "image/upload/v1685897030/admin@gmail.com/comment_1/ttsrapuaybvxqxz11axa.jpg",
+        "post": 1,
+        "user": 2,
+        "created": "2023-06-04T16:50:34.392Z",
+        "updated": "2023-06-04T16:50:36.036Z"
+    }
+}
+]

@@ -1,0 +1,13 @@
+[
+{
+    "model": "post.image",
+    "pk": 1,
+    "fields": {
+        "file": "image/upload/v1685896965/admin@gmail.com/post_1/hznivmornrs17xueja5o.png",
+        "post": 1,
+        "owner": 1,
+        "created": "2023-06-04T16:49:31.383Z",
+        "updated": "2023-06-04T16:49:31.383Z"
+    }
+}
+]

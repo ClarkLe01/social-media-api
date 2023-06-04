@@ -1,0 +1,54 @@
+[
+{
+    "model": "notification.notification",
+    "pk": 1,
+    "fields": {
+        "senderID": 1,
+        "receiverID": 2,
+        "content": "create new post",
+        "created": "2023-06-04T16:49:31.391Z",
+        "updated": "2023-06-04T16:49:31.391Z",
+        "read": false,
+        "type": "create-post-1"
+    }
+},
+{
+    "model": "notification.notification",
+    "pk": 2,
+    "fields": {
+        "senderID": 1,
+        "receiverID": 3,
+        "content": "create new post",
+        "created": "2023-06-04T16:49:31.399Z",
+        "updated": "2023-06-04T16:49:31.399Z",
+        "read": false,
+        "type": "create-post-1"
+    }
+},
+{
+    "model": "notification.notification",
+    "pk": 3,
+    "fields": {
+        "senderID": 2,
+        "receiverID": 1,
+        "content": "haha to your post",
+        "created": "2023-06-04T16:50:01.559Z",
+        "updated": "2023-06-04T16:50:01.559Z",
+        "read": false,
+        "type": "interaction-haha-1"
+    }
+},
+{
+    "model": "notification.notification",
+    "pk": 4,
+    "fields": {
+        "senderID": 2,
+        "receiverID": 1,
+        "content": "add comment to your post",
+        "created": "2023-06-04T16:50:36.042Z",
+        "updated": "2023-06-04T16:50:36.042Z",
+        "read": false,
+        "type": "create-comment-1"
+    }
+}
+]

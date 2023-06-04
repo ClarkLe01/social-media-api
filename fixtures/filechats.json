@@ -1,42 +1,22 @@
 [
 {
     "model": "chat.file",
-    "pk": 9,
+    "pk": 1,
     "fields": {
-        "instance": "roomchat_2/image/43.jpg",
+        "instance": "image/upload/v1685896528/roomchat_3/image/scaqipdc1rrmp6jarexs.jpg",
         "type": "image",
-        "created": "2023-04-29T21:07:55.467Z",
-        "room": 2
+        "created": "2023-06-04T16:42:13.683Z",
+        "room": 3
     }
 },
 {
     "model": "chat.file",
-    "pk": 10,
+    "pk": 2,
     "fields": {
-        "instance": "roomchat_2/image/302076413_3265558810431042_7128883109004170478_n.jpg",
-        "type": "image",
-        "created": "2023-04-29T21:07:55.490Z",
-        "room": 2
-    }
-},
-{
-    "model": "chat.file",
-    "pk": 11,
-    "fields": {
-        "instance": "roomchat_2/image/beautiful-rain-forest-ang-ka-nature-trail-doi-inthanon-national-park-th_1UQgIcl.jpg",
-        "type": "image",
-        "created": "2023-04-29T21:07:55.512Z",
-        "room": 2
-    }
-},
-{
-    "model": "chat.file",
-    "pk": 12,
-    "fields": {
-        "instance": "roomchat_2/video/2023-03-03_12-28-10.mp4",
+        "instance": "video/upload/v1685896537/roomchat_3/video/szmdlcsgtviazkh3kctt.mp4",
         "type": "video",
-        "created": "2023-04-29T21:07:55.542Z",
-        "room": 2
+        "created": "2023-06-04T16:42:24.036Z",
+        "room": 3
     }
 }
 ]

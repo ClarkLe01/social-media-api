@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # import sentry_sdk
 # from sentry_sdk import capture_message
@@ -83,8 +86,15 @@ INSTALLED_APPS = [
     "friend",
     "post",
     'django_filters',
+    'cloudinary',
     "debug_toolbar",
 ]
+
+cloudinary.config(
+    cloud_name=os.environ.get("CLOUDINARY_NAME", None),
+    api_key=os.environ.get("CLOUDINARY_API_KEY", None),
+    api_secret=os.environ.get("CLOUDINARY_SECRET_KEY", None)
+)
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

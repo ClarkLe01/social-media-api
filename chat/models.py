@@ -1,7 +1,10 @@
+from cloudinary import uploader
+from django.core.files.uploadedfile import UploadedFile
 from django.utils import timezone
 from django.db import models
 from user.models import User
 import os
+from cloudinary.models import CloudinaryField
 
 
 # Create your models here.
@@ -10,12 +13,39 @@ def upload_room_avatar_directory_path(instance, filename):
     return 'roomchat_{0}/avatar/{1}'.format(instance.id, filename)
 
 
+class AvatarRoomField(CloudinaryField):
+    def upload_options(self, instance):
+        return {
+            'folder': 'roomchat_{0}/avatar'.format(instance.id),
+            'resource_type': 'image',
+            'quality': 'auto:eco',
+        }
+
+    def pre_save(self, model_instance, add):
+        self.options = dict(list(self.options.items()) + list(self.upload_options(model_instance).items()))
+        value = super(CloudinaryField, self).pre_save(model_instance, add)
+        if isinstance(value, UploadedFile):
+            options = {"type": self.type, "resource_type": self.resource_type}
+            options.update({key: val(model_instance) if callable(val) else val for key, val in self.options.items()})
+            if hasattr(value, 'seekable') and value.seekable():
+                value.seek(0)
+            instance_value = uploader.upload_resource(value, **options)
+            setattr(model_instance, self.attname, instance_value)
+            if self.width_field:
+                setattr(model_instance, self.width_field, instance_value.metadata.get('width'))
+            if self.height_field:
+                setattr(model_instance, self.height_field, instance_value.metadata.get('height'))
+            return self.get_prep_value(instance_value)
+        else:
+            return value
+
+
 class RoomChat(models.Model):
     roomName = models.CharField(max_length=255, blank=True, null=True)
     members = models.ManyToManyField(User, through='Membership')
     isGroup = models.BooleanField(default=False)
     updated = models.DateTimeField(default=timezone.now)
-    roomAvatar = models.ImageField(upload_to=upload_room_avatar_directory_path, null=True, blank=True)
+    roomAvatar = AvatarRoomField(null=True, blank=True)
 
     def __str__(self):
         return 'RoomChat {0}'.format(self.id)
@@ -37,8 +67,35 @@ def user_project_directory_path(instance, filename):
     return 'roomchat_{0}/{1}/{2}'.format(instance.room.id, instance.type, filename)
 
 
+class FileInstanceField(CloudinaryField):
+    def upload_options(self, instance):
+        return {
+            'folder': 'roomchat_{0}/{1}'.format(instance.room.id, instance.type),
+            'resource_type': instance.type,
+            'quality': 'auto:eco',
+        }
+
+    def pre_save(self, model_instance, add):
+        self.options = dict(list(self.options.items()) + list(self.upload_options(model_instance).items()))
+        value = super(CloudinaryField, self).pre_save(model_instance, add)
+        if isinstance(value, UploadedFile):
+            options = {"type": self.type, "resource_type": self.resource_type}
+            options.update({key: val(model_instance) if callable(val) else val for key, val in self.options.items()})
+            if hasattr(value, 'seekable') and value.seekable():
+                value.seek(0)
+            instance_value = uploader.upload_resource(value, **options)
+            setattr(model_instance, self.attname, instance_value)
+            if self.width_field:
+                setattr(model_instance, self.width_field, instance_value.metadata.get('width'))
+            if self.height_field:
+                setattr(model_instance, self.height_field, instance_value.metadata.get('height'))
+            return self.get_prep_value(instance_value)
+        else:
+            return value
+
+
 class File(models.Model):
-    instance = models.FileField(upload_to=user_project_directory_path)
+    instance = FileInstanceField()
     type = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True)
     room = models.ForeignKey(RoomChat, blank=True, null=True, on_delete=models.CASCADE, related_name='file')
@@ -47,10 +104,7 @@ class File(models.Model):
         ordering = ('created',)
 
     def __str__(self):
-        return 'File {0}'.format(self.instance.name)
-
-    def filename(self):
-        return os.path.basename(self.instance.name)
+        return 'File {0}'.format(self.instance.url)
 
 
 class Message(models.Model):
