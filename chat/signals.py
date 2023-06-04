@@ -60,11 +60,11 @@ def skip_delete_old_image(sender, instance=None, **kwargs):
         setattr(instance, _OLD_FILEFIELD, old_instance.roomAvatar)
 
 
-@receiver(post_save, sender=RoomChat)
-def delete_old_image(sender, instance, created, **kwargs):
-    if created:  # Skip if instance is being created
-        return
-    if hasattr(instance, _OLD_FILEFIELD):
-        old_image = getattr(instance, _OLD_FILEFIELD)
-        if os.path.isfile(old_image.path):
-            default_storage.delete(old_image.path)
+# @receiver(post_save, sender=RoomChat)
+# def delete_old_image(sender, instance, created, **kwargs):
+#     if created:  # Skip if instance is being created
+#         return
+#     if hasattr(instance, _OLD_FILEFIELD):
+#         old_image = getattr(instance, _OLD_FILEFIELD)
+#         if os.path.isfile(old_image.path):
+#             default_storage.delete(old_image.path)

@@ -1,51 +1,65 @@
-import os
-
 from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
-from core.storage import OverwriteStorage
-from django.core.files import File
-from PIL import Image
+from cloudinary.models import CloudinaryField
+from cloudinary import uploader
+from django.core.files.uploadedfile import UploadedFile
 
 
-def resize_and_save_image(image_path, output_size):
-    # Open the image using PIL
-    with Image.open(image_path) as img:
-        print("Resizing image", image_path)
-        img.convert('RGB')
-        # Resize the image
-        img_resized = img.resize(output_size)
+# Create your models here.
+class AvatarField(CloudinaryField):
+    def upload_options(self, instance):
+        return {
+            'folder': '{0}/avatar/'.format(instance.email),
+            'resource_type': 'image',
+            'quality': 'auto:eco',
+        }
 
-        # Create a temporary file to save the resized image
-        temp_image = File(open(image_path, 'rb'))
-
-        # Overwrite the temporary file with the resized image
-        with open(image_path, 'wb') as f:
-            img_resized.save(f)
-
-        # Return the resized image as a Django File object
-        return File(open(image_path, 'rb'))
-
-
-def upload_avatar_directory_path(instance, filename):
-    # files will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return '{0}/avatar/{1}'.format(instance.email, filename)
-
-
-def upload_cover_directory_path(instance, filename):
-    # files will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return '{0}/cover/{1}'.format(instance.email, filename)
-
-
-def upload_album_directory_path(instance, filename):
-    # files will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return '{0}/album/{1}'.format(instance.email, filename)
+    def pre_save(self, model_instance, add):
+        self.options = dict(list(self.options.items()) + list(self.upload_options(model_instance).items()))
+        value = super(CloudinaryField, self).pre_save(model_instance, add)
+        if isinstance(value, UploadedFile):
+            options = {"type": self.type, "resource_type": self.resource_type}
+            options.update({key: val(model_instance) if callable(val) else val for key, val in self.options.items()})
+            if hasattr(value, 'seekable') and value.seekable():
+                value.seek(0)
+            instance_value = uploader.upload_resource(value, **options)
+            setattr(model_instance, self.attname, instance_value)
+            if self.width_field:
+                setattr(model_instance, self.width_field, instance_value.metadata.get('width'))
+            if self.height_field:
+                setattr(model_instance, self.height_field, instance_value.metadata.get('height'))
+            return self.get_prep_value(instance_value)
+        else:
+            return value
 
 
-def upload_video_directory_path(instance, filename):
-    # files will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return '{0}/video/{1}'.format(instance.email, filename)
+class CoverField(CloudinaryField):
+    def upload_options(self, instance):
+        return {
+            'folder': '{0}/cover/'.format(instance.email),
+            'resource_type': 'image',
+            'quality': 'auto:eco',
+        }
+
+    def pre_save(self, model_instance, add):
+        self.options = dict(list(self.options.items()) + list(self.upload_options(model_instance).items()))
+        value = super(CloudinaryField, self).pre_save(model_instance, add)
+        if isinstance(value, UploadedFile):
+            options = {"type": self.type, "resource_type": self.resource_type}
+            options.update({key: val(model_instance) if callable(val) else val for key, val in self.options.items()})
+            if hasattr(value, 'seekable') and value.seekable():
+                value.seek(0)
+            instance_value = uploader.upload_resource(value, **options)
+            setattr(model_instance, self.attname, instance_value)
+            if self.width_field:
+                setattr(model_instance, self.width_field, instance_value.metadata.get('width'))
+            if self.height_field:
+                setattr(model_instance, self.height_field, instance_value.metadata.get('height'))
+            return self.get_prep_value(instance_value)
+        else:
+            return value
 
 
 # Create your models here.
@@ -86,13 +100,8 @@ class User(AbstractUser):
     email = models.EmailField(max_length=100, unique=True)
     first_name = models.CharField("first name", max_length=150, blank=True)
     last_name = models.CharField("last name", max_length=150, blank=True)
-
-    cover = models.ImageField(upload_to=upload_cover_directory_path,
-                              null=True, blank=True,
-                              default='default/cover_default.png')
-    avatar = models.ImageField(upload_to=upload_avatar_directory_path,
-                               null=True, blank=True,
-                               default='default/avatar_default.jpg')
+    cover = CoverField()
+    avatar = AvatarField()
     MALE = 'male'
     FEMALE = 'female'
     NONBINARY = 'nonbinary'
@@ -111,15 +120,6 @@ class User(AbstractUser):
 
     class Meta:
         db_table = 'User'
-
-    # def save(self, *args, **kwargs):
-    #     # Call the parent save method to create the record in the database
-    #     super(User, self).save(*args, **kwargs)
-    #
-    #     # Resize the image and save it to the file system
-    #     cover_path = self.cover.path
-    #     resized_image = resize_and_save_image(cover_path, (1200, 300))
-    #     self.cover.save(os.path.basename(cover_path), resized_image, save=False)
 
 
 class Profile(models.Model):

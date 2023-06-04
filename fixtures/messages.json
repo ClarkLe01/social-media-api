@@ -4,9 +4,9 @@
     "pk": 1,
     "fields": {
         "senderID": 1,
-        "receiverID": 1,
+        "receiverID": 3,
         "content": "hello",
-        "created": "2023-04-29T20:19:41.119Z",
+        "created": "2023-06-04T16:41:52.402Z",
         "isRemoved": false,
         "files": []
     }
@@ -15,54 +15,40 @@
     "model": "chat.message",
     "pk": 2,
     "fields": {
-        "senderID": 2,
-        "receiverID": 1,
-        "content": "hi",
-        "created": "2023-04-29T20:19:49.109Z",
+        "senderID": 1,
+        "receiverID": 3,
+        "content": "",
+        "created": "2023-06-04T16:42:13.690Z",
+        "isRemoved": false,
+        "files": [
+            1
+        ]
+    }
+},
+{
+    "model": "chat.message",
+    "pk": 3,
+    "fields": {
+        "senderID": 3,
+        "receiverID": 3,
+        "content": "",
+        "created": "2023-06-04T16:42:24.044Z",
         "isRemoved": false,
         "files": []
     }
 },
 {
     "model": "chat.message",
-    "pk": 10,
+    "pk": 4,
     "fields": {
-        "senderID": 1,
-        "receiverID": 2,
+        "senderID": 3,
+        "receiverID": 3,
         "content": "",
-        "created": "2023-04-29T21:07:55.550Z",
+        "created": "2023-06-04T16:42:24.063Z",
         "isRemoved": false,
         "files": [
-            9,
-            10,
-            11
+            2
         ]
-    }
-},
-{
-    "model": "chat.message",
-    "pk": 11,
-    "fields": {
-        "senderID": 1,
-        "receiverID": 2,
-        "content": "",
-        "created": "2023-04-29T21:07:55.572Z",
-        "isRemoved": false,
-        "files": [
-            12
-        ]
-    }
-},
-{
-    "model": "chat.message",
-    "pk": 12,
-    "fields": {
-        "senderID": 1,
-        "receiverID": 2,
-        "content": "hello",
-        "created": "2023-04-29T21:07:55.587Z",
-        "isRemoved": false,
-        "files": []
     }
 }
 ]

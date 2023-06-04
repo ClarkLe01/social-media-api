@@ -224,13 +224,14 @@ class CommentCreateView(generics.CreateAPIView):
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        Notification.objects.create(
-            senderID=request.user,
-            receiverID=post.owner,
-            type='create-comment-' + str(post.id),
-            content='add comment to your post',
-            read=False,
-        )
+        if request.user != post.owner:
+            Notification.objects.create(
+                senderID=request.user,
+                receiverID=post.owner,
+                type='create-comment-' + str(post.id),
+                content='add comment to your post',
+                read=False,
+            )
         data = PostCommentDetailSerializer(PostComment.objects.get(pk=serializer.data['id']), many=False).data
         headers = self.get_success_headers(data)
         return Response(data, status=status.HTTP_201_CREATED, headers=headers)
@@ -294,7 +295,7 @@ class InteractionAPIView(generics.RetrieveUpdateDestroyAPIView):
             # If 'prefetch_related' has been applied to a queryset, we need to
             # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}
-        if serializer.data['type'] != 'unlike':
+        if serializer.data['type'] != 'unlike' and request.user != post.owner:
             Notification.objects.create(
                 senderID=request.user,
                 receiverID=post.owner,

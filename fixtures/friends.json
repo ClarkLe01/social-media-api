@@ -6,8 +6,8 @@
         "requestID": 1,
         "responseID": 2,
         "status": true,
-        "created": "2023-04-29T20:16:31.388Z",
-        "updated": "2023-04-29T20:18:06.755Z"
+        "created": "2023-05-31T22:27:29.040Z",
+        "updated": "2023-05-31T22:30:40.291Z"
     }
 },
 {
@@ -17,30 +17,8 @@
         "requestID": 1,
         "responseID": 3,
         "status": true,
-        "created": "2023-04-29T20:16:34.597Z",
-        "updated": "2023-04-29T20:18:28.056Z"
-    }
-},
-{
-    "model": "friend.friend",
-    "pk": 3,
-    "fields": {
-        "requestID": 1,
-        "responseID": 4,
-        "status": true,
-        "created": "2023-04-29T20:16:38.009Z",
-        "updated": "2023-04-29T20:18:24.177Z"
-    }
-},
-{
-    "model": "friend.friend",
-    "pk": 4,
-    "fields": {
-        "requestID": 1,
-        "responseID": 5,
-        "status": true,
-        "created": "2023-04-29T20:16:41.859Z",
-        "updated": "2023-04-29T20:18:30.922Z"
+        "created": "2023-06-04T11:44:19.252Z",
+        "updated": "2023-06-04T11:44:38.068Z"
     }
 }
 ]
