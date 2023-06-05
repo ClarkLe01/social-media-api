@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from .serializers import RoomChatCreateSerializer, MessageSerializer, SeenSerializer, RoomChatSerializer, \
     MessageCreateSerializer, RoomChatListSerializer, FileSerializer, MemberSerializer, MembershipSerializer
 from rest_framework import generics, permissions, status
-from .models import RoomChat, Message, Seen, Membership
+from .models import RoomChat, Message, Seen, Membership, File
 from user.models import User
 
 
@@ -379,3 +379,37 @@ class DeleteGroupChatAPIView(APIView):
             roomChat.delete()
             return Response("Ok", status=status.HTTP_200_OK)
         return Response({"error": "Please give fully information"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ImageChatListView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FileSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = File.objects.filter(room__id=kwargs.get('roomId'), type='image')
+        queryset = self.filter_queryset(queryset)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class VideoChatListView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = FileSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = File.objects.filter(room__id=kwargs.get('roomId'), type='video')
+        queryset = self.filter_queryset(queryset)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

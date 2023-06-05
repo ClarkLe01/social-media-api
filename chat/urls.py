@@ -12,6 +12,8 @@ from .views import (
     AddMemberChatAPIView,
     RemoveMemberChatAPIView,
     DeleteGroupChatAPIView,
+    ImageChatListView,
+    VideoChatListView,
 )
 
 
@@ -29,4 +31,6 @@ urlpatterns = [
     path('/message/send', SendMessageView.as_view(), name='send_message'),
     path('/message/list/<int:roomId>', MessageListView.as_view(), name='message_list'),
     path('/message/seen/<int:messageId>', SeenMessageListView.as_view(), name='seen_message'),
+    path('/videos/<int:roomId>', VideoChatListView.as_view(), name='videos_list'),
+    path('/images/<int:roomId>', ImageChatListView.as_view(), name='images_list'),
 ]
