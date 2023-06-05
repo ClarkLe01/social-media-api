@@ -92,8 +92,13 @@ jobs:
       - run:
           name: Waiting for Postgres to be ready
           command: |
-            chmod +x ./entrypoint.prod.sh
-            ./entrypoint.prod.sh
+            for i in `seq 1 10`;
+            do
+              nc -z localhost 5432 && echo Success && exit 0
+              echo -n .
+              sleep 1
+            done
+            echo Failed waiting for Postgress && exit 1
       - docker/check:
           docker-username: DOCKER_USER
           docker-password: DOCKER_PASSWORD
