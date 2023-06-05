@@ -132,19 +132,19 @@ workflows:
                 environment_type: development
                 job_type: build
 
-      - aws-ecr/build-and-push-image: # Use the pre-defined `build-and-push-image` job
-          requires:
-            - test-backend
-          dockerfile: Dockerfile
-          path: .
-          profile-name: waflol
-          repo: social-web-api
-          tag: latest # default - latest
-          filters:
-            branches:
-              only:
-                - main
-          post-steps:
-            - jira/notify:
-                environment_type: development
-                job_type: build
+#      - aws-ecr/build-and-push-image:
+#          requires:
+#            - test-backend
+#          dockerfile: Dockerfile
+#          path: .
+#          profile-name: waflol
+#          repo: social-web-api
+#          tag: latest # default - latest
+#          filters:
+#            branches:
+#              only:
+#                - main
+#          post-steps:
+#            - jira/notify:
+#                environment_type: development
+#                job_type: build
