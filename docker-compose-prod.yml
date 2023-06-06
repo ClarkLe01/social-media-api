@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    command: /app/backend/entrypoint.prod.sh
+    expose:
+      - 8000
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - db
+  db:
+    image: postgres:15-alpine
+    container_name: db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env.prod.db
+
+  redis:
+    image: redis:latest
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    image: celery_worker
+    command: /app/backend/celery/worker/start.sh
+    volumes:
+      - .:/app/backend
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - redis
+      - db
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    image: celery_beat
+    command: /app/backend/celery/beat/start.sh
+    volumes:
+      - .:/app/backend
+    env_file:
+      - ./.env.prod
+    depends_on:
+      - redis
+      - db
+
+  flower:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    image: celery_flower
+    command: /app/backend/celery/flower/start.sh
+    volumes:
+      - .:/app/backend
+    env_file:
+      - ./.env.prod
+    ports:
+      - '5557:5555'
+    depends_on:
+      - redis
+      - db
+
+  nginx:
+    build: ./nginx
+    restart: always
+    volumes:
+      - ./nginx/:/etc/nginx/conf.d/
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
