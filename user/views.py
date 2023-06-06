@@ -7,7 +7,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from friend.models import Friend
-from .serializers import UserSerializer, MyTokenObtainPairSerializer, UserProfileSerializer
+from .serializers import (
+    UserSerializer,
+    MyTokenObtainPairSerializer,
+    UserProfileSerializer,
+    FollowUserSerializer,
+    MuteNotifyUserSerializer
+)
 from .models import User
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth.tokens import default_token_generator
@@ -216,3 +222,69 @@ class UsersListView(generics.ListAPIView):
             if friend_query.requestID == user:
                 friend.append(friend_query.responseID.id)
         return self.queryset.exclude(id__in=friend)
+
+
+class FollowUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        userId = request.data.get('userId', None)
+        try:
+            user = User.objects.get(pk=userId)
+            request.user.follow.add(user)
+            return Response(data={"status": "200", "message": "OK"}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response(data={"status": "404", "message": "NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class UnFollowUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        userId = request.data.get('userId', None)
+        try:
+            user = User.objects.get(pk=userId)
+            request.user.follow.remove(user)
+            return Response(data={"status": "200", "message": "OK"}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response(data={"status": "404", "message": "NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class FollowUserRetrieveView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = User.objects.all()
+    serializer_class = FollowUserSerializer
+    lookup_field = 'pk'
+
+
+class MuteNotifyUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        userId = request.data.get('userId', None)
+        try:
+            user = User.objects.get(pk=userId)
+            request.user.mute.add(user)
+            return Response(data={"status": "200", "message": "OK"}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response(data={"status": "404", "message": "NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class UnMuteNotifyUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format=None):
+        userId = request.data.get('userId', None)
+        try:
+            user = User.objects.get(pk=userId)
+            request.user.mute.remove(user)
+            return Response(data={"status": "200", "message": "OK"}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response(data={"status": "404", "message": "NOT_FOUND"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class MuteNotifyUserRetrieveView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = User.objects.all()
+    serializer_class = MuteNotifyUserSerializer
+    lookup_field = 'pk'

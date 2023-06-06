@@ -66,3 +66,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+
+class FollowUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'follow']
+
+
+class MuteNotifyUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'mute']
