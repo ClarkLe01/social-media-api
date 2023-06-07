@@ -1,7 +1,6 @@
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
-import channels.layers
-from asgiref.sync import async_to_sync
+from .tasks import send_notify
 from rest_framework.views import APIView
 
 from .serializers import RoomChatCreateSerializer, MessageSerializer, SeenSerializer, RoomChatSerializer, \
@@ -279,7 +278,9 @@ class SendMessageView(generics.CreateAPIView):
                 room.save()
                 headers = self.get_success_headers(message_serializer.data)
                 data = message_serializer.data
-
+                for member in room.members.all():
+                    if member.id != request.user.id:
+                        send_notify.delay(member.id, data)
             return Response(data, status=status.HTTP_201_CREATED, headers=headers)
         except (RoomChat.DoesNotExist, ValidationError):
             return Response({'error': 'Something is wrong'},

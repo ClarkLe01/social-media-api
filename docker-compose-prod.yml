@@ -5,7 +5,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
-    command: /app/backend/entrypoint.prod.sh
+    command: /home/app/backend/entrypoint.prod.sh
+    volumes:
+      - static_volume:/home/app/backend/static
+      - media_volume:/home/app/backend/media
     expose:
       - 8000
     env_file:
@@ -14,11 +17,10 @@ services:
       - db
   db:
     image: postgres:15-alpine
-    container_name: db
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
-      - ./.env.prod.db
+      - ./.env.prod
 
   redis:
     image: redis:latest
@@ -28,9 +30,9 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     image: celery_worker
-    command: /app/backend/celery/worker/start.sh
+    command: /home/app/backend/celery/worker/start.sh
     volumes:
-      - .:/app/backend
+      - .:/home/app/backend
     env_file:
       - ./.env.prod
     depends_on:
@@ -42,9 +44,9 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     image: celery_beat
-    command: /app/backend/celery/beat/start.sh
+    command: /home/app/backend/celery/beat/start.sh
     volumes:
-      - .:/app/backend
+      - .:/home/app/backend
     env_file:
       - ./.env.prod
     depends_on:
@@ -56,9 +58,9 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     image: celery_flower
-    command: /app/backend/celery/flower/start.sh
+    command: /home/app/backend/celery/flower/start.sh
     volumes:
-      - .:/app/backend
+      - .:/home/app/backend
     env_file:
       - ./.env.prod
     ports:
@@ -70,13 +72,18 @@ services:
   nginx:
     build: ./nginx
     restart: always
-    volumes:
-      - ./nginx/:/etc/nginx/conf.d/
     ports:
       - "80:80"
       - "443:443"
+    volumes:
+      - ./nginx/:/etc/nginx/conf.d/
+      - static_volume:/home/app/backend/static
+      - media_volume:/home/app/backend/media
     depends_on:
       - backend
+      - flower
 
 volumes:
   postgres_data:
+  static_volume:
+  media_volume:

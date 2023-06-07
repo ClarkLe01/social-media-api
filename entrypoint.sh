@@ -24,5 +24,5 @@ python manage.py loaddata fixtures/postimages.json --app post.Image
 python manage.py loaddata fixtures/comments.json --app post.PostComment
 python manage.py loaddata fixtures/interactions.json --app post.PostInteraction
 python manage.py loaddata fixtures/notifications.json --app notification.Notification
-python manage.py runserver 0.0.0.0:8000
+daphne -b 0.0.0.0 -p 8000 core.asgi:application
 exec "$@"

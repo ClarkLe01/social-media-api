@@ -4,7 +4,6 @@ import jwt
 from channels.db import database_sync_to_async
 from channels.auth import get_user
 from channels.sessions import CookieMiddleware
-from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from rest_framework.exceptions import AuthenticationFailed
@@ -18,7 +17,6 @@ def get_user(scope):
     """
     # postpone model import to avoid ImproperlyConfigured error before Django
     # setup is complete.
-    from django.contrib.auth.models import AnonymousUser
     try:
         if "token" not in scope:
             raise ValueError(
@@ -37,10 +35,10 @@ def get_user(scope):
                 if not user.is_active:
                     raise AuthenticationFailed("User inactive or deleted.")
             except UserModel.DoesNotExist:
-                user = AnonymousUser()
-        return user or AnonymousUser()
+                user = None
+        return user or None
     except (ValueError, AuthenticationFailed):
-        return AnonymousUser()
+        return None
 
 
 class JWTAuthMiddleware:
@@ -61,9 +59,8 @@ class JWTAuthMiddleware:
                 )
             scope["token"] = query_params["token"][0]
             scope["user"] = await get_user(scope)
-
         except ValueError:
-            scope["user"] = AnonymousUser()
+            scope["user"] = None
         return await self.inner(scope, receive, send)
 
 

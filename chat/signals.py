@@ -14,13 +14,15 @@ _OLD_FILEFIELD = 'old_filefield'
 def send_message(sender, instance, created, **kwargs):
     if created and len(instance.content) > 0 and len(instance.files.all()) == 0:
         channel_layer = channels.layers.get_channel_layer()
+        data = MessageSerializer(instance, many=False).data
         async_to_sync(channel_layer.group_send)(
             f"room_{instance.receiverID.id}",
             {
                 "type": "message",
-                "data": MessageSerializer(instance, many=False).data
+                "data": data
             },
         )
+
 
 
 @receiver(m2m_changed, sender=Message.files.through)
