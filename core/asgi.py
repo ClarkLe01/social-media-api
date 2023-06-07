@@ -9,24 +9,21 @@ https://docs.djangoproject.com/en/4.1/howto/deployment/asgi/
 
 import os
 
-import socketio
+# import socketio
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 
-from .middleware import JWTAuthMiddleware, JWTAuthMiddlewareStack
+from .middleware import JWTAuthMiddlewareStack
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 
 django_asgi_app = get_asgi_application()
 
-# create a Socket.IO server
-sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins=[])
 
 import notification.routing  # noqa
 import chat.routing  # noqa
-import core.routing # noqa
-import calling.routing
+import calling.routing # noqa
 
 application = ProtocolTypeRouter(
     {
@@ -36,7 +33,6 @@ application = ProtocolTypeRouter(
                 *notification.routing.websocket_urlpatterns,
                 *chat.routing.websocket_urlpatterns,
                 *calling.routing.websocket_urlpatterns,
-                *core.routing.websocket_urlpatterns,
             ])),
         ),
     }

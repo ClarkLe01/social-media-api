@@ -76,3 +76,9 @@ class NotificationConsumer(AsyncJsonWebsocketConsumer):
         Encode the given content as JSON and send it to the client.
         """
         await super().send(text_data=await self.encode_json(content), close=close)
+
+    async def message(self, content, close=False):
+        """
+        Encode the given content as JSON and send it to the client.
+        """
+        await super().send(text_data=await self.encode_json(content), close=close)
