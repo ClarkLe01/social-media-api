@@ -79,3 +79,4 @@ RUN chmod +x $APP_HOME/entrypoint.prod.sh
 RUN chmod +x $APP_HOME/flower.sh
 RUN chmod +x $APP_HOME/worker.sh
 RUN chmod +x $APP_HOME/beat.sh
+RUN chmod 755 $APP_HOME/*

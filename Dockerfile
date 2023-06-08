@@ -26,4 +26,5 @@ RUN chmod +x /app/backend/worker.sh
 RUN sed -i 's/\r$//g' /app/backend/flower.sh
 RUN chmod +x /app/backend/flower.sh
 
+
 WORKDIR /app/backend/
