@@ -19,16 +19,16 @@ COPY . /app/backend/
 RUN sed -i 's/\r$//g' /app/backend/entrypoint.sh
 RUN chmod +x /app/backend/entrypoint.sh
 
-#COPY ./celery/beat/start.sh /app/backend/celery/beat/
-RUN sed -i 's/\r$//g' /app/backend/celery/beat/start.sh
-RUN chmod +x /app/backend/celery/beat/start.sh
+COPY ./celery/beat/start.sh /start-celerybeat
+RUN sed -i 's/\r$//g' /start-celerybeat
+RUN chmod +x /start-celerybeat
 
-#COPY ./celery/worker/start.sh /app/backend/celery/worker/
-RUN sed -i 's/\r$//g' /app/backend/celery/worker/start.sh
-RUN chmod +x /app/backend/celery/worker/start.sh
+COPY ./celery/worker/start.sh /start-celeryworker
+RUN sed -i 's/\r$//g' /start-celeryworker
+RUN chmod +x /start-celeryworker
 
-#COPY ./celery/flower/start.sh /app/backend/celery/flower/
-RUN sed -i 's/\r$//g' /app/backend/celery/flower/start.sh
-RUN chmod +x /app/backend/celery/flower/start.sh
+COPY ./celery/flower/start.sh /start-flower
+RUN sed -i 's/\r$//g' /start-flower
+RUN chmod +x /start-flower
 
 WORKDIR /app/backend/
