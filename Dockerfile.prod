@@ -76,3 +76,6 @@ RUN chown -R app:app $APP_HOME
 USER app
 # run entrypoint.prod.sh
 RUN chmod +x $APP_HOME/entrypoint.prod.sh
+RUN chmod +x $APP_HOME/celery/beat/start.sh
+RUN chmod +x $APP_HOME/celery/worker/start.sh
+RUN chmod +x $APP_HOME/celery/flower/start.sh
