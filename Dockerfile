@@ -17,13 +17,13 @@ COPY . /app/backend/
 RUN sed -i 's/\r$//g' /app/backend/entrypoint.sh
 RUN chmod +x /app/backend/entrypoint.sh
 
-RUN sed -i 's/\r$//g' /app/backend/celery/beat/start-beat.sh
-RUN chmod +x /app/backend/celery/beat/start-beat.sh
+RUN sed -i 's/\r$//g' /app/backend/beat.sh
+RUN chmod +x /app/backend/beat.sh
 
-RUN sed -i 's/\r$//g' /app/backend/celery/worker/start-worker.sh
-RUN chmod +x /app/backend/celery/worker/start-worker.sh
+RUN sed -i 's/\r$//g' /app/backend/worker.sh
+RUN chmod +x /app/backend/worker.sh
 
-RUN sed -i 's/\r$//g' /app/backend/celery/flower/start-flower.sh
-RUN chmod +x /app/backend/celery/flower/start-flower.sh
+RUN sed -i 's/\r$//g' /app/backend/flower.sh
+RUN chmod +x /app/backend/flower.sh
 
 WORKDIR /app/backend/

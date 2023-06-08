@@ -54,17 +54,17 @@ COPY ./entrypoint.prod.sh .
 RUN sed -i 's/\r$//g' $APP_HOME/entrypoint.prod.sh
 # RUN chmod +x $APP_HOME/entrypoint.prod.sh
 
-COPY ./celery/beat/start-beat.sh .
-RUN sed -i 's/\r$//g' $APP_HOME/start-beat.sh
-# RUN chmod +x $APP_HOME/start-beat.sh
+COPY ./beat.sh .
+RUN sed -i 's/\r$//g' $APP_HOME/beat.sh
+# RUN chmod +x $APP_HOME/beat.sh
 
-COPY ./celery/worker/start-worker.sh .
-RUN sed -i 's/\r$//g' $APP_HOME/start-worker.sh
-# RUN chmod +x $APP_HOME/start-worker.sh
+COPY ./worker.sh .
+RUN sed -i 's/\r$//g' $APP_HOME/-worker.sh
+# RUN chmod +x $APP_HOME/worker.sh
 
-COPY ./celery/flower/start-flower.sh .
-RUN sed -i 's/\r$//g' $APP_HOME/start-flower.sh
-# RUN chmod +x $APP_HOME/start-flower.sh
+COPY ./flower.sh .
+RUN sed -i 's/\r$//g' $APP_HOME/flower.sh
+# RUN chmod +x $APP_HOME/flower.sh
 
 # copy project
 COPY . $APP_HOME
@@ -76,6 +76,6 @@ RUN chown -R app:app $APP_HOME
 USER app
 # run entrypoint.prod.sh
 RUN chmod +x $APP_HOME/entrypoint.prod.sh
-RUN chmod +x $APP_HOME/start-flower.sh
-RUN chmod +x $APP_HOME/start-flower.sh
-RUN chmod +x $APP_HOME/start-flower.sh
+RUN chmod +x $APP_HOME/flower.sh
+RUN chmod +x $APP_HOME/worker.sh
+RUN chmod +x $APP_HOME/beat.sh

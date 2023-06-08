@@ -34,7 +34,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: celery_worker
-    command: /app/backend/celery/worker/start-worker.sh
+    command: /app/backend/worker.sh
     volumes:
       - .:/app/backend
     env_file:
@@ -48,7 +48,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: celery_beat
-    command: /app/backend/celery/beat/start-beat.sh
+    command: /app/backend/beat.sh
     volumes:
       - .:/app/backend
     env_file:
@@ -62,7 +62,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: celery_flower
-    command: /app/backend/celery/flower/start-flower.sh
+    command: /app/backend/flower.sh
     volumes:
       - .:/app/backend
     env_file:
