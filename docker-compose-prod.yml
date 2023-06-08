@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
-    command: /home/app/backend/entrypoint.prod.sh
+    command: /entrypoint
     volumes:
       - static_volume:/home/app/backend/static
       - media_volume:/home/app/backend/media
@@ -30,7 +30,7 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     image: celery_worker
-    command: celery -A core worker -l INFO
+    command: /start-celeryworker
     volumes:
       - .:/home/app/backend
     env_file:
@@ -44,7 +44,7 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     image: celery_beat
-    command: celery -A core beat -l info
+    command: /start-celerybeat
     volumes:
       - .:/home/app/backend
     env_file:
@@ -58,7 +58,7 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     image: celery_flower
-    command: celery -A core --broker="${CELERY_BROKER}" flower
+    command: /start-flower
     volumes:
       - .:/home/app/backend
     env_file:
@@ -68,8 +68,6 @@ services:
     depends_on:
       - redis
       - db
-      - celery_beat
-      - celery_worker
 
   nginx:
     build: ./nginx

@@ -16,8 +16,8 @@ RUN pip install -r requirements.txt
 # copy entrypoint.sh
 COPY . /app/backend/
 #COPY ./entrypoint.sh /app/backend/
-RUN sed -i 's/\r$//g' /app/backend/entrypoint.sh
-RUN chmod +x /app/backend/entrypoint.sh
+RUN sed -i 's/\r$//g' /entrypoint
+RUN chmod +x /entrypoint
 
 COPY ./celery/beat/start.sh /start-celerybeat
 RUN sed -i 's/\r$//g' /start-celerybeat
