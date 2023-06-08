@@ -59,7 +59,7 @@ RUN sed -i 's/\r$//g' $APP_HOME/beat.sh
 # RUN chmod +x $APP_HOME/beat.sh
 
 COPY ./worker.sh .
-RUN sed -i 's/\r$//g' $APP_HOME/-worker.sh
+RUN sed -i 's/\r$//g' $APP_HOME/worker.sh
 # RUN chmod +x $APP_HOME/worker.sh
 
 COPY ./flower.sh .
