@@ -53,7 +53,19 @@ RUN pip install --no-cache /wheels/*
 # copy entrypoint.prod.sh
 COPY ./entrypoint.prod.sh .
 RUN sed -i 's/\r$//g' $APP_HOME/entrypoint.prod.sh
-# RUN chmod +x $APP_HOME/entrypoint.prod.sh
+RUN chmod +x $APP_HOME/entrypoint.prod.sh
+
+#COPY ./celery/beat/start.sh $APP_HOME/celery/beat/
+RUN sed -i 's/\r$//g' $APP_HOME/celery/beat/start.sh
+RUN chmod +x $APP_HOME/celery/beat/start.sh
+
+#COPY ./celery/worker/start.sh $APP_HOME/celery/worker/
+RUN sed -i 's/\r$//g' $APP_HOME/celery/worker/start.sh
+RUN chmod +x $APP_HOME/celery/worker/start.sh
+
+#COPY ./celery/flower/start.sh $APP_HOME/celery/flower/
+RUN sed -i 's/\r$//g' $APP_HOME/celery/flower/start.sh
+RUN chmod +x $APP_HOME/celery/flower/start.sh
 
 # copy project
 COPY . $APP_HOME
