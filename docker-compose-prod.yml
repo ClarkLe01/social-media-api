@@ -30,7 +30,7 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     image: celery_worker
-    command: /home/app/backend/celery/worker/start.sh
+    command: celery -A core worker -l INFO
     volumes:
       - .:/home/app/backend
     env_file:
@@ -44,7 +44,7 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     image: celery_beat
-    command: /home/app/backend/celery/beat/start.sh
+    command: celery -A core beat -l info
     volumes:
       - .:/home/app/backend
     env_file:
@@ -58,7 +58,7 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     image: celery_flower
-    command: /home/app/backend/celery/flower/start.sh
+    command: celery -A core --broker="${CELERY_BROKER}" flower
     volumes:
       - .:/home/app/backend
     env_file:
@@ -68,6 +68,8 @@ services:
     depends_on:
       - redis
       - db
+      - celery_beat
+      - celery_worker
 
   nginx:
     build: ./nginx
