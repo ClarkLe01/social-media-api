@@ -62,9 +62,19 @@ APPEND_SLASH = False
 # rollbar.init(**ROLLBAR)
 # rollbar.report_message('Rollbar is configured correctly', level='info')
 
-CSRF_TRUSTED_ORIGINS = ["*"]
-ALLOWED_HOSTS = ["*", "[::1]"]
-CORS_ORIGIN_WHITELIST = ["*"]
+CSRF_TRUSTED_ORIGINS = [
+    'http://35.153.14.230',
+    'http://ec2-35-153-14-230.compute-1.amazonaws.com',
+    'http://localhost:80',
+    'http://127.0.0.1:80',
+]
+ALLOWED_HOSTS = ['ec2-35-153-14-230.compute-1.amazonaws.com', '35.153.14.230', 'localhost', '127.0.0.1', '[::1]']
+CORS_ORIGIN_WHITELIST = [
+    'http://35.153.14.230:80',
+    'http://ec2-35-153-14-230.compute-1.amazonaws.com:80',
+    'http://localhost:80',
+    'http://127.0.0.1:80',
+]
 
 # Application definition
 
