@@ -62,7 +62,9 @@ APPEND_SLASH = False
 # rollbar.init(**ROLLBAR)
 # rollbar.report_message('Rollbar is configured correctly', level='info')
 
-ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = ["*"]
+ALLOWED_HOSTS = ["*", "[::1]"]
+CORS_ORIGIN_WHITELIST = ["*"]
 
 # Application definition
 
@@ -108,7 +110,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_HEADERS = [
     "accept",
