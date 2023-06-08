@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: /entrypoint
+    command: /app/backend/entrypoint.sh
     env_file:
       - .env
 
@@ -34,7 +34,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: celery_worker
-    command: /start-celeryworker
+    command: /app/backend/celery/worker/start-worker.sh
     volumes:
       - .:/app/backend
     env_file:
@@ -48,7 +48,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: celery_beat
-    command: /start-celerybeat
+    command: /app/backend/celery/beat/start-beat.sh
     volumes:
       - .:/app/backend
     env_file:
@@ -62,7 +62,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: celery_flower
-    command: /start-flower
+    command: /app/backend/celery/flower/start-flower.sh
     volumes:
       - .:/app/backend
     env_file:

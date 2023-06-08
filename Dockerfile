@@ -13,22 +13,17 @@ RUN pip install --upgrade pip
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
-# copy entrypoint.sh
 COPY . /app/backend/
-#COPY ./entrypoint.sh /app/backend/
-RUN sed -i 's/\r$//g' /entrypoint
-RUN chmod +x /entrypoint
+RUN sed -i 's/\r$//g' /app/backend/entrypoint.sh
+RUN chmod +x /app/backend/entrypoint.sh
 
-COPY ./celery/beat/start.sh /start-celerybeat
-RUN sed -i 's/\r$//g' /start-celerybeat
-RUN chmod +x /start-celerybeat
+RUN sed -i 's/\r$//g' /app/backend/celery/beat/start-beat.sh
+RUN chmod +x /app/backend/celery/beat/start-beat.sh
 
-COPY ./celery/worker/start.sh /start-celeryworker
-RUN sed -i 's/\r$//g' /start-celeryworker
-RUN chmod +x /start-celeryworker
+RUN sed -i 's/\r$//g' /app/backend/celery/worker/start-worker.sh
+RUN chmod +x /app/backend/celery/worker/start-worker.sh
 
-COPY ./celery/flower/start.sh /start-flower
-RUN sed -i 's/\r$//g' /start-flower
-RUN chmod +x /start-flower
+RUN sed -i 's/\r$//g' /app/backend/celery/flower/start-flower.sh
+RUN chmod +x /app/backend/celery/flower/start-flower.sh
 
 WORKDIR /app/backend/
