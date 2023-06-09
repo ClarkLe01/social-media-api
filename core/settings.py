@@ -69,8 +69,11 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:80',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
+    'http://35.169.112.71',
+    'http://ec2-35-169-112-71.compute-1.amazonaws.com',
+    'http://142.93.182.2',
 ]
-ALLOWED_HOSTS = ['ec2-35-153-14-230.compute-1.amazonaws.com', '35.153.14.230', 'localhost', '127.0.0.1', '[::1]']
+ALLOWED_HOSTS = ['ec2-35-153-14-230.compute-1.amazonaws.com', '35.153.14.230', 'http://ec2-35-169-112-71.compute-1.amazonaws.com', 'http://35.169.112.71', 'http://142.93.182.2', 'localhost', '127.0.0.1', '[::1]']
 CORS_ORIGIN_WHITELIST = [
     'http://35.153.14.230:80',
     'http://ec2-35-153-14-230.compute-1.amazonaws.com:80',
@@ -78,6 +81,9 @@ CORS_ORIGIN_WHITELIST = [
     'http://127.0.0.1:80',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
+    'http://35.169.112.71:80',
+    'http://ec2-35-169-112-71.compute-1.amazonaws.com:80',
+    'http://142.93.182.2:80',
 ]
 
 # Application definition
