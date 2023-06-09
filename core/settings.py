@@ -66,6 +66,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://35.153.14.230',
     'http://ec2-35-153-14-230.compute-1.amazonaws.com',
     'http://localhost:80',
+    'http://localhost:3000',
     'http://127.0.0.1:80',
 ]
 ALLOWED_HOSTS = ['ec2-35-153-14-230.compute-1.amazonaws.com', '35.153.14.230', 'localhost', '127.0.0.1', '[::1]']
@@ -74,6 +75,8 @@ CORS_ORIGIN_WHITELIST = [
     'http://ec2-35-153-14-230.compute-1.amazonaws.com:80',
     'http://localhost:80',
     'http://127.0.0.1:80',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
 ]
 
 # Application definition
