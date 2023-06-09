@@ -44,7 +44,7 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     image: celery_beat
-    command: /home/app/backend/beat.sh
+    command: celery -A core beat -s /home/app/backend/celerybeat-schedule
     volumes:
       - .:/home/app/backend
     env_file:
