@@ -74,10 +74,3 @@ RUN chown -R app:app $APP_HOME
 
 # change to the app user
 USER app
-# run entrypoint.prod.sh
-RUN chmod +x $APP_HOME/entrypoint.prod.sh
-RUN chmod +x $APP_HOME/flower.sh
-RUN chmod +x $APP_HOME/worker.sh
-RUN chmod +x $APP_HOME/beat.sh
-RUN chmod +x $APP_HOME/beat.sh
-RUN chmod +x celerybeat-schedule
