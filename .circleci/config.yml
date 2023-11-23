@@ -35,6 +35,13 @@ jobs:
             pip install isort
             pip install flake8
             pip install black
+      - run:
+          name: Check Lint
+          command: |
+            flake8 .
+            isort .
+            black .
+
 
 
 
