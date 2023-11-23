@@ -36,7 +36,6 @@ jobs:
       DB_PORT: 5432
     steps:
       - checkout
-      - browser-tools/install-browser-tools
       - run:
           name: Waiting for Postgres to be ready
           command: |
