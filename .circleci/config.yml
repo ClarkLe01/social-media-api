@@ -114,6 +114,7 @@ workflows:
       - deploy-prod:
           requires:
             - test-backend
+            - check-lint
           filters:
             branches:
               only:
