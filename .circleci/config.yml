@@ -76,90 +76,24 @@ jobs:
       - store_artifacts:
           path: htmlcov
 
-  build-and-push-backend:
-    executor: backend-executor
-    environment:
-      DEBUG: 0
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      DB_PORT: 5432
-      DOCKER_IMAGE: waflol/social-media-api
-      DOCKER_TAG: lastest
+  deploy-prod:
+    docker:
+    # specify the version you desire here (you might not want node)
+    - image: circleci/node:7.10
     steps:
-      - setup_remote_docker
       - checkout
-      - run:
-          name: Waiting for Postgres to be ready
-          command: |
-            for i in `seq 1 10`;
-            do
-              nc -z localhost 5432 && echo Success && exit 0
-              echo -n .
-              sleep 1
-            done
-            echo Failed waiting for Postgress && exit 1
-      - docker/check:
-          docker-username: DOCKER_USER
-          docker-password: DOCKER_PASSWORD
-      - run:
-          name: docker/build
-          command: |
-            docker build -t $DOCKER_IMAGE:$DOCKER_TAG .
-      - docker/push:
-          digest-path: /tmp/digest.txt
-          image: $DOCKER_IMAGE
-          tag: $DOCKER_TAG
-      - run:
-          command: |
-            echo "Digest is: $(</tmp/digest.txt)"
-
-  build-and-push-ecr:
-    executor: aws-cli/default
-    steps:
-      - aws-cli/install
-      - aws-cli/setup:
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-region: AWS_REGION
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-
+      - run: ssh -oStrictHostKeyChecking=no -v $DROPLET_USER@$DROPLET_IP “./deploy.sh”
 
 workflows:
   # Name of workflow
   pipeline:
     # List of jobs that will run
     jobs:
-      - test-backend:
-          post-steps:
-            - jira/notify:
-                environment_type: testing
-                job_type: build
-
-      - build-and-push-backend:
+      - test-backend
+      - deploy-prod:
           requires:
             - test-backend
           filters:
             branches:
               only:
                 - main
-          post-steps:
-            - jira/notify:
-                environment_type: development
-                job_type: build
-
-#      - aws-ecr/build-and-push-image:
-#          requires:
-#            - test-backend
-#          dockerfile: Dockerfile
-#          path: .
-#          profile-name: waflol
-#          repo: social-web-api
-#          tag: latest # default - latest
-#          filters:
-#            branches:
-#              only:
-#                - main
-#          post-steps:
-#            - jira/notify:
-#                environment_type: development
-#                job_type: build
