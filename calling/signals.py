@@ -1,10 +1,11 @@
 import json
 
+import channels.layers
 from asgiref.sync import async_to_sync
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
 from .models import Call
-import channels.layers
 from .serializers import CallSerializer
 
 
@@ -21,8 +22,5 @@ def send_call(sender, instance, created, **kwargs):
                 data = CallSerializer(instance, many=False).data
                 async_to_sync(channel_layer.group_send)(
                     f"user_{member.id}",
-                    {
-                        "type": "calling",
-                        "value": data
-                    },
+                    {"type": "calling", "value": data},
                 )

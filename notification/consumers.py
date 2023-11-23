@@ -1,11 +1,14 @@
+import json
+
 from asgiref.sync import async_to_sync
 from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
-from django.contrib.auth.models import AnonymousUser
-from user.models import User
-from .models import Notification
 from channels.layers import get_channel_layer
-import json
+from django.contrib.auth.models import AnonymousUser
+
+from user.models import User
+
+from .models import Notification
 
 
 @database_sync_to_async
@@ -26,22 +29,30 @@ class NotificationConsumer(AsyncJsonWebsocketConsumer):
         await self.accept()
         self.room_group_name = f"user_{self.scope['user'].pk}"
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-        print('User', self.scope['user'].pk, ' connected to', self.channel_name)
-        await update_user_status(self.scope['user'].pk, True)
-        await self.send_json({
-            'alert': 'User' + str(self.scope['user'].pk) + ' connected to' + self.channel_name + ' successful'
-        })
+        print("User", self.scope["user"].pk, " connected to", self.channel_name)
+        await update_user_status(self.scope["user"].pk, True)
+        await self.send_json(
+            {
+                "alert": (
+                    "User"
+                    + str(self.scope["user"].pk)
+                    + " connected to"
+                    + self.channel_name
+                    + " successful"
+                )
+            }
+        )
 
     async def disconnect(self, close_code):
-        print('User', self.scope['user'].pk, ' disconnected')
-        await update_user_status(self.scope['user'].pk, False)
+        print("User", self.scope["user"].pk, " disconnected")
+        await update_user_status(self.scope["user"].pk, False)
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     async def receive_json(self, content, **kwargs):
         # Do something with the message content, e.g.:
-        if content['type'] == 'ping':
-            print('WebSocket message received:', content)
-            await update_user_status(self.scope['user'].pk, True)
+        if content["type"] == "ping":
+            print("WebSocket message received:", content)
+            await update_user_status(self.scope["user"].pk, True)
 
         # if content['type'] == 'acceptCall':
         #     print('WebSocket message acceptCall:', content)

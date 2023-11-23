@@ -1,32 +1,34 @@
 from django.conf import settings
 from django.db.models import Q
 from rest_framework import serializers
-from .models import Post, PostInteraction, PostComment, Image
+
 from chat.serializers import MemberSerializer
+
+from .models import Image, Post, PostComment, PostInteraction
 
 
 class CreatePostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = "__all__"
 
 
 class CreatePostImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
-        fields = '__all__'
+        fields = "__all__"
 
 
 class CreatePostInteractionSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostInteraction
-        fields = '__all__'
+        fields = "__all__"
 
 
 class CreatePostCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostComment
-        fields = '__all__'
+        fields = "__all__"
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
@@ -37,7 +39,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = "__all__"
 
     def get_images(self, obj):
         images = Image.objects.filter(post=obj)
@@ -46,7 +48,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
         return None
 
     def get_interactions(self, obj):
-        interactions = PostInteraction.objects.filter(Q(post=obj) & ~Q(type='unlike'))
+        interactions = PostInteraction.objects.filter(Q(post=obj) & ~Q(type="unlike"))
         if len(interactions) > 0:
             return CreatePostInteractionSerializer(interactions, many=True).data
         return []
@@ -57,7 +59,7 @@ class PostInteractionsDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PostInteraction
-        fields = '__all__'
+        fields = "__all__"
 
     def create(self, validated_data):
         instance, _ = PostInteraction.objects.get_or_create(**validated_data)
@@ -69,4 +71,4 @@ class PostCommentDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PostComment
-        fields = '__all__'
+        fields = "__all__"

@@ -1,22 +1,26 @@
 from django.urls import path
+
 from .views import (
+    AcceptFriendRequestView,
     AddFriendView,
     DeleteFriendView,
-    AcceptFriendRequestView,
+    FriendListDetailView,
+    FriendListView,
     FriendRequestsListView,
     FriendResponsesListView,
-    FriendListView,
-    FriendListDetailView
 )
 
-
-app_name = 'friend'
+app_name = "friend"
 urlpatterns = [
-    path('/add', AddFriendView.as_view(), name='addFriend'),
-    path('/requests', FriendRequestsListView.as_view(), name='requestsList'),
-    path('/responses', FriendResponsesListView.as_view(), name='responsesList'),
-    path('/delete/<int:pk>', DeleteFriendView.as_view(), name='deleteFriend'),
-    path('/accept/<int:pk>', AcceptFriendRequestView.as_view(), name='acceptFriendRequest'),
-    path('/list/<int:pk>', FriendListView.as_view(), name='friendsList'),
-    path('/list/detail/<int:pk>', FriendListDetailView.as_view(), name='friendsDetailList'),
+    path("/add", AddFriendView.as_view(), name="addFriend"),
+    path("/requests", FriendRequestsListView.as_view(), name="requestsList"),
+    path("/responses", FriendResponsesListView.as_view(), name="responsesList"),
+    path("/delete/<int:pk>", DeleteFriendView.as_view(), name="deleteFriend"),
+    path(
+        "/accept/<int:pk>", AcceptFriendRequestView.as_view(), name="acceptFriendRequest"
+    ),
+    path("/list/<int:pk>", FriendListView.as_view(), name="friendsList"),
+    path(
+        "/list/detail/<int:pk>", FriendListDetailView.as_view(), name="friendsDetailList"
+    ),
 ]

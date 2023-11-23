@@ -1,11 +1,16 @@
 from django.db import models
+
 from user.models import User
 
 
 # Create your models here.
 class Notification(models.Model):
-    senderID = models.ForeignKey(User, on_delete=models.CASCADE, related_name='senderNotification')
-    receiverID = models.ForeignKey(User, on_delete=models.CASCADE, related_name='receiverNotification')
+    senderID = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="senderNotification"
+    )
+    receiverID = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="receiverNotification"
+    )
     content = models.TextField(blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -13,13 +18,13 @@ class Notification(models.Model):
     """
         type: string
         pattern: [model]-[action]-[idInstance]
-        action: 
-            - interaction (like, love, sad, angry) 
+        action:
+            - interaction (like, love, sad, angry)
             - commentPost (comment)
-            - Post (post) 
+            - Post (post)
             - commentStory (comment)
             - story (story)
-            - friend (add, accept), 
+            - friend (add, accept),
         example: friend-add-3, interaction-like-4, create-post-1, create-comment-1
     """
     type = models.CharField(max_length=255, blank=True, null=True)

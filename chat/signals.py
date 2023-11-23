@@ -1,13 +1,15 @@
-from asgiref.sync import async_to_sync
-from django.db.models.signals import post_save, m2m_changed, pre_save
-from django.dispatch import receiver
-from .models import Message, RoomChat
-import channels.layers
-from .serializers import MessageSerializer, RoomChatSerializer
 import os
-from django.core.files.storage import default_storage
 
-_OLD_FILEFIELD = 'old_filefield'
+import channels.layers
+from asgiref.sync import async_to_sync
+from django.core.files.storage import default_storage
+from django.db.models.signals import m2m_changed, post_save, pre_save
+from django.dispatch import receiver
+
+from .models import Message, RoomChat
+from .serializers import MessageSerializer, RoomChatSerializer
+
+_OLD_FILEFIELD = "old_filefield"
 
 
 @receiver(post_save, sender=Message)
@@ -17,36 +19,33 @@ def send_message(sender, instance, created, **kwargs):
         data = MessageSerializer(instance, many=False).data
         async_to_sync(channel_layer.group_send)(
             f"room_{instance.receiverID.id}",
-            {
-                "type": "message",
-                "data": data
-            },
+            {"type": "message", "data": data},
         )
-
 
 
 @receiver(m2m_changed, sender=Message.files.through)
 def send_files(sender, instance, action, **kwargs):
-    if action == 'post_add' and len(instance.content) == 0 and len(instance.files.all()) > 0:
+    if (
+        action == "post_add"
+        and len(instance.content) == 0
+        and len(instance.files.all()) > 0
+    ):
         channel_layer = channels.layers.get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             f"room_{instance.receiverID.id}",
-            {
-                "type": "message",
-                "data": MessageSerializer(instance, many=False).data
-            },
+            {"type": "message", "data": MessageSerializer(instance, many=False).data},
         )
 
 
 @receiver(m2m_changed, sender=RoomChat.members.through)
 def add_members(sender, instance, action, **kwargs):
-    if action == 'post_add':
+    if action == "post_add":
         channel_layer = channels.layers.get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             f"room_{instance.id}",
             {
                 "type": "add_members",
-                "data": RoomChatSerializer(instance, many=False).data
+                "data": RoomChatSerializer(instance, many=False).data,
             },
         )
 

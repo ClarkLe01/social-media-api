@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('notification', '0003_notification_read'),
+        ("notification", "0003_notification_read"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='notification',
-            name='updated',
+            model_name="notification",
+            name="updated",
             field=models.DateTimeField(auto_now=True),
         ),
     ]

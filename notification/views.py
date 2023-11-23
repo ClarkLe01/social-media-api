@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from .models import Notification
 from .serializers import NotificationSerializer
-from rest_framework.response import Response
 
 
 # Create your views here.
@@ -13,14 +13,16 @@ class NotificationListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Notification.objects.filter(receiverID=self.request.user).order_by('-created')
+        return Notification.objects.filter(receiverID=self.request.user).order_by(
+            "-created"
+        )
 
 
 class ReadNotificationView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = NotificationSerializer
     queryset = Notification.objects.all()
-    lookup_field = 'pk'
+    lookup_field = "pk"
 
     def update(self, request, *args, **kwargs):
         notification_item = self.get_object()
@@ -31,12 +33,14 @@ class ReadNotificationView(generics.UpdateAPIView):
 
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response({'error': 'You do not have permission to update this notification item'},
-                            status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"error": "You do not have permission to update this notification item"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
 
 class DeleteNotificationView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = NotificationSerializer
     queryset = Notification.objects.all()
-    lookup_field = 'pk'
+    lookup_field = "pk"

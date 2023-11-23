@@ -18,6 +18,7 @@ def get_user(token):
     # postpone model import to avoid ImproperlyConfigured error before Django
     # setup is complete.
     from django.contrib.auth.models import AnonymousUser
+
     try:
         user = None
         decoded_data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
@@ -40,7 +41,7 @@ class NotificationNamespace(socketio.AsyncNamespace):
     async def on_connect(self, sid, environ):
         self.user = None
         try:
-            query_params = parse_qs(environ['QUERY_STRING'])
+            query_params = parse_qs(environ["QUERY_STRING"])
 
             if "token" not in query_params:
                 raise ValueError(
@@ -53,7 +54,11 @@ class NotificationNamespace(socketio.AsyncNamespace):
                 raise AuthenticationFailed("User inactive or deleted.")
             print(self.user, " is connecting NotificationNamespace")
 
-            await self.emit('connect', {'connection': 'success connect to NotificationNamespace'}, to=sid)
+            await self.emit(
+                "connect",
+                {"connection": "success connect to NotificationNamespace"},
+                to=sid,
+            )
         except (ValueError, AuthenticationFailed):
             print(self.user, " is connecting NotificationNamespace")
 
@@ -62,5 +67,4 @@ class NotificationNamespace(socketio.AsyncNamespace):
 
     async def on_notify(self, sid, data):
         print(data)
-        await self.emit('my_response', {'notify NotificationNamespace': 'ok'}, to=sid)
-
+        await self.emit("my_response", {"notify NotificationNamespace": "ok"}, to=sid)

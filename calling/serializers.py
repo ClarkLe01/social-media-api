@@ -1,12 +1,12 @@
-from chat.models import RoomChat
-from .models import Call
 from rest_framework import serializers
+
+from chat.models import RoomChat
 from user.models import User
+
+from .models import Call
 
 
 class CallSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Call
-        fields = '__all__'
-
+        fields = "__all__"

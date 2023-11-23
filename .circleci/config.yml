@@ -25,6 +25,19 @@ executors:
 
 jobs:
   # Job one with a unique name
+  check-lint:
+    executor: backend-executor
+    steps:
+      - checkout
+      - run:
+          name: Install Lint packages
+          command: |
+            pip install isort
+            pip install flake8
+            pip install black
+
+
+
   test-backend:
     executor: backend-executor
     environment:
