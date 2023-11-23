@@ -157,4 +157,3 @@ cython_debug/
 test-results
 certbot/
 letsencrypt
-prod.env
