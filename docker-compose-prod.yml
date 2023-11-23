@@ -60,7 +60,6 @@ services:
       - ./certbot/conf/:/etc/nginx/ssl/:ro
     depends_on:
       - backend
-      - flower
   
   certbot:
     image: certbot/certbot:latest
