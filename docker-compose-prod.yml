@@ -4,61 +4,46 @@ services:
   backend:
     build:
       context: .
-      dockerfile: Dockerfile.prod
-    command: /home/app/backend/entrypoint.prod.sh
+      dockerfile: Dockerfile
+    container_name: backend
+    command: ls && /home/app/backend/entrypoint.prod.sh
     volumes:
       - static_volume:/home/app/backend/static
       - media_volume:/home/app/backend/media
     expose:
       - 8000
     env_file:
-      - ./.env.prod
-    depends_on:
-      - db
+      - ./prod.env
 
   celery_worker:
     build:
       context: .
-      dockerfile: Dockerfile.prod
-    image: celery_worker
+      dockerfile: Dockerfile
+    container_name: celery_worker
     command: /home/app/backend/worker.sh
     volumes:
       - .:/home/app/backend
     env_file:
-      - ./.env.prod
-    depends_on:
-      - redis
-      - db
+      - ./prod.env
 
   celery_beat:
     build:
       context: .
-      dockerfile: Dockerfile.prod
-    image: celery_beat
-    command: celery -A core beat
+      dockerfile: Dockerfile
+    container_name: celery_beat
+    command: /home/app/backend/beat.sh
     volumes:
       - .:/home/app/backend
     env_file:
-      - ./.env.prod
-    depends_on:
-      - redis
-      - db
+      - ./prod.env
 
   flower:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-    image: celery_flower
-    command: /home/app/backend/flower.sh
-    volumes:
-      - .:/home/app/backend
+    image: mher/flower:0.9.7
+    command: ['flower', '--broker=${CELERY_BROKER}', '--port=5555']
     env_file:
-      - ./.env.prod
+      - ./prod.env
     ports:
       - '5557:5555'
-    depends_on:
-      - redis
-      - db
 
   nginx:
     build: ./nginx
@@ -70,9 +55,19 @@ services:
       - ./nginx/:/etc/nginx/conf.d/
       - static_volume:/home/app/backend/static
       - media_volume:/home/app/backend/media
+      - ./letsencrypt/:/etc/letsencrypt/
+      - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
     depends_on:
       - backend
       - flower
+  
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
 
 volumes:
   postgres_data:
