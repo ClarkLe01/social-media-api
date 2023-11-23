@@ -10,8 +10,8 @@ services:
     volumes:
       - static_volume:/app/backend/static
       - media_volume:/app/backend/media
-    expose:
-      - 8000
+    port:
+      - 8000:8000
     env_file:
       - ./.env
 
