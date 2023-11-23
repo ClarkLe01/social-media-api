@@ -67,14 +67,16 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://domainclark.me",
+    "http://167.172.79.230:80",
 ]
-ALLOWED_HOSTS = ["domainclark.me", "localhost", "127.0.0.1", "[::1]"]
+ALLOWED_HOSTS = ["167.172.79.230", "domainclark.me", "localhost", "127.0.0.1", "[::1]"]
 CORS_ORIGIN_WHITELIST = [
     "http://localhost:80",
     "http://127.0.0.1:80",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://domainclark.me",
+    "http://167.172.79.230:80",
 ]
 
 # Application definition
