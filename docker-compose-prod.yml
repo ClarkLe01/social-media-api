@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: backend
-    command: /home/app/backend/entrypoint.prod.sh
+    command: sh -c "chmod +x /home/app/backend/entrypoint.prod.sh && /home/app/backend/entrypoint.prod.sh"
     volumes:
       - static_volume:/home/app/backend/static
       - media_volume:/home/app/backend/media
