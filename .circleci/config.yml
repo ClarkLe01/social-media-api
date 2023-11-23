@@ -108,6 +108,7 @@ workflows:
   pipeline:
     # List of jobs that will run
     jobs:
+      - check-lint
       - test-backend
       - deploy-prod:
           requires:
