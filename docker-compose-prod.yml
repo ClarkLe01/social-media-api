@@ -20,7 +20,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: celery_worker
-    command: sudo /app/backend/worker.sh
+    command: /app/backend/worker.sh
     volumes:
       - .:/app/backend
     env_file:
