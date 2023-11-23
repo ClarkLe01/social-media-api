@@ -15,15 +15,6 @@ services:
       - ./.env.prod
     depends_on:
       - db
-  db:
-    image: postgres:15-alpine
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    env_file:
-      - ./.env.prod
-
-  redis:
-    image: redis:latest
 
   celery_worker:
     build:
