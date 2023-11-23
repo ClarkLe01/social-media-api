@@ -18,8 +18,8 @@ RUN sed -i 's/\r$//g' /app/backend/entrypoint.sh
 RUN chmod +x /app/backend/entrypoint.sh
 
 COPY ./entrypoint.prod.sh .
-RUN sed -i 's/\r$//g' $APP_HOME/entrypoint.prod.sh
-RUN chmod 400 $APP_HOME/entrypoint.prod.sh
+RUN sed -i 's/\r$//g' /app/backend/entrypoint.prod.sh
+RUN chmod +x /app/backend/entrypoint.prod.sh
 
 RUN sed -i 's/\r$//g' /app/backend/beat.sh
 RUN chmod +x /app/backend/beat.sh

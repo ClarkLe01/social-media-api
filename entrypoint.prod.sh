@@ -1,4 +1,8 @@
 #!/bin/sh
+
+set -o errexit
+set -o nounset
+
 postgres_ready() {
 python << END
 import sys
@@ -7,9 +11,9 @@ import psycopg2
 
 try:
     psycopg2.connect(
-        dbname="${DB_NAME}",
-        user="${DB_USER}",
-        password="${DB_PASSWORD}",
+        dbname="${POSTGRES_DB}",
+        user="${POSTGRES_USER}",
+        password="${POSTGRES_PASSWORD}",
         host="${DB_HOST}",
         port="${DB_PORT}",
     )
