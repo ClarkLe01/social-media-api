@@ -13,7 +13,7 @@ services:
     expose:
       - 8000
     env_file:
-      - ./prod.env
+      - ./.env
 
   celery_worker:
     build:
@@ -24,7 +24,7 @@ services:
     volumes:
       - .:/home/app/backend
     env_file:
-      - ./prod.env
+      - ./.env
 
   celery_beat:
     build:
@@ -35,13 +35,13 @@ services:
     volumes:
       - .:/home/app/backend
     env_file:
-      - ./prod.env
+      - ./.env
 
   flower:
     image: mher/flower:0.9.7
     command: ['flower', '--broker=${CELERY_BROKER}', '--port=5555']
     env_file:
-      - ./prod.env
+      - ./.env
     ports:
       - '5557:5555'
 
