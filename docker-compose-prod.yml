@@ -10,7 +10,7 @@ services:
     volumes:
       - static_volume:/app/backend/static
       - media_volume:/app/backend/media
-    port:
+    ports:
       - 8000:8000
     env_file:
       - ./.env
