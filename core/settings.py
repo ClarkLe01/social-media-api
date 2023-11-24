@@ -60,26 +60,14 @@ APPEND_SLASH = False
 #
 # rollbar.init(**ROLLBAR)
 # rollbar.report_message('Rollbar is configured correctly', level='info')
-
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:80",
-    "http://127.0.0.1:80",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://domainclark.me",
-    "http://167.172.79.230:80",
-    "http://167.172.79.230:8000",
-]
-ALLOWED_HOSTS = ["167.172.79.230", "domainclark.me", "localhost", "127.0.0.1", "[::1]"]
-CORS_ORIGIN_WHITELIST = [
-    "http://localhost:80",
-    "http://127.0.0.1:80",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://domainclark.me",
-    "http://167.172.79.230:80",
-    "http://167.172.79.230:8000",
-]
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+CSRF_TRUSTED_ORIGINS = ["*"]
+ALLOWED_HOSTS = ["*"]
+CORS_ORIGIN_WHITELIST = ["*"]
+if os.getenv("ENVIRONMENT") == "staging":
+    ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
+    CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS").split(" ")
+    CORS_ORIGIN_WHITELIST = os.environ.get("CORS_ORIGIN_WHITELIST").split(" ")
 
 # Application definition
 
