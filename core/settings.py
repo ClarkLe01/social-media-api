@@ -22,7 +22,7 @@ from sentry_sdk import capture_message
 from sentry_sdk.integrations.django import DjangoIntegration
 
 # import rollbar
-
+ENVIRONMENT = os.getenv("ENVIRONMENT", "local") 
 sentry_sdk.init(
     dsn=os.environ.get("SENTRY_DNS"),
     integrations=[
@@ -69,11 +69,12 @@ CORS_ORIGIN_WHITELIST = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
 ]
-if os.getenv("ENVIRONMENT") == "staging":
+
+if ENVIRONMENT == "staging":
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-    ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
-    CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS").split(" ")
-    CORS_ORIGIN_WHITELIST = os.environ.get("CORS_ORIGIN_WHITELIST").split(" ")
+    ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(" ")
+    CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS").split(" ")
+    CORS_ORIGIN_WHITELIST = os.getenv("CORS_ORIGIN_WHITELIST").split(" ")
 
 # Application definition
 
@@ -186,7 +187,7 @@ DATABASES = {
     }
 }
 
-if os.getenv("ENVIRONMENT") == "staging":
+if ENVIRONMENT == "staging":
     DATABASES = {
         "default": {
             "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.postgresql"),
