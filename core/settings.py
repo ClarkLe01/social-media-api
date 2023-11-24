@@ -60,9 +60,15 @@ APPEND_SLASH = False
 #
 # rollbar.init(**ROLLBAR)
 # rollbar.report_message('Rollbar is configured correctly', level='info')
-CSRF_TRUSTED_ORIGINS = ["*"]
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
 ALLOWED_HOSTS = ["*"]
-CORS_ORIGIN_WHITELIST = ["*"]
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
 if os.getenv("ENVIRONMENT") == "staging":
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
