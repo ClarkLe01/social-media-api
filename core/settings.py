@@ -22,7 +22,7 @@ from sentry_sdk import capture_message
 from sentry_sdk.integrations.django import DjangoIntegration
 
 # import rollbar
-ENVIRONMENT = os.environ.get("ENVIRONMENT", "local") 
+ENVIRONMENT = os.environ.get("ENVIRONMENT", "local")
 sentry_sdk.init(
     dsn=os.environ.get("SENTRY_DNS"),
     integrations=[
