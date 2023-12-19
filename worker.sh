@@ -3,4 +3,5 @@
 set -o errexit
 set -o nounset
 
-celery -A core worker -l INFO
+# celery -A core worker -l INFO
+python /tmp/debugpy --listen 0.0.0.0:6900 -m celery -A core worker -l INFO

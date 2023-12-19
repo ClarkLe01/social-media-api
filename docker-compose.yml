@@ -5,24 +5,22 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: sudo /app/backend/entrypoint.sh
+    container_name: backend
+    command: /app/backend/entrypoint.sh
     env_file:
       - .env
-
     ports:
       - '8000:8000'
-
+      - '8001:8001'
+      - '5678:5678'
     volumes:
       - .:/app/backend
-
     depends_on:
       - redis
       - db
 
   db:
     image: postgres:14-alpine
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
     env_file:
       - .env
 
@@ -33,10 +31,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: celery_worker
-    command: sudo /app/backend/worker.sh
+    container_name: celery_worker
+    command: /app/backend/worker.sh
     volumes:
       - .:/app/backend
+    ports:
+      - '6900:6900'
     env_file:
       - .env
     depends_on:
@@ -47,8 +47,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: celery_beat
-    command: sudo /app/backend/beat.sh
+    container_name: celery_beat
+    command: /app/backend/beat.sh
     volumes:
       - .:/app/backend
     env_file:
@@ -61,8 +61,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: celery_flower
-    command: sudo /app/backend/flower.sh
+    command: /app/backend/flower.sh
     volumes:
       - .:/app/backend
     env_file:
@@ -72,13 +71,3 @@ services:
     depends_on:
       - redis
       - db
-
-  certbot:
-    image: certbot/certbot:latest
-    container_name: certbot
-    volumes:
-      - ./certbot/www/:/var/www/certbot/:rw
-      - ./certbot/conf/:/etc/letsencrypt/:rw
-
-volumes:
-  postgres_data:

@@ -32,3 +32,4 @@ RUN chmod +x /app/backend/flower.sh
 
 
 WORKDIR /app/backend/
+RUN pip install debugpy -t /tmp
