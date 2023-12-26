@@ -5,9 +5,6 @@ version: 2.1
 orbs:
   browser-tools: circleci/browser-tools@1.4.1
   docker: circleci/docker@2.2.0
-  aws-ecr: circleci/aws-ecr@8.1.2 # use the AWS ECR orb
-  aws-ecs: circleci/aws-ecs@3.2.0 # use the AWS ECS orb
-  aws-cli: circleci/aws-cli@3.1.1 # use the AWS CLI orb
   jira: circleci/jira@1.3.1
 
 
