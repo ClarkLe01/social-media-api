@@ -97,7 +97,7 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "59:49:79:51:6d:cc:b8:d1:17:b6:2f:af:cd:ea:12:15"
-      - run: ssh -oStrictHostKeyChecking=no -v $DROPLET_USER@$DROPLET_IP “./deploy.sh”
+      - run: ssh -oStrictHostKeyChecking=no -v $DROPLET_USER@$DROPLET_IP "./deploy.sh"
 
 workflows:
   # Name of workflow
