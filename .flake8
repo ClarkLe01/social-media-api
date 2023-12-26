@@ -1,4 +1,4 @@
 [flake8]
-extend-ignore = E501,F401
-exclude = .git,.circleci,__pycache__,docs, venv
+extend-ignore = E501,F401,C901,F811
+exclude = .git,.circleci,__pycache__,docs, venv, letsencrypt, certbot, static
 max-complexity = 10

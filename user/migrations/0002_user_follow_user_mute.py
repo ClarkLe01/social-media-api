@@ -5,20 +5,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('user', '0001_initial'),
+        ("user", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='follow',
-            field=models.ManyToManyField(blank=True, null=True, related_name='follow_user', to=settings.AUTH_USER_MODEL),
+            model_name="user",
+            name="follow",
+            field=models.ManyToManyField(
+                blank=True,
+                null=True,
+                related_name="follow_user",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AddField(
-            model_name='user',
-            name='mute',
-            field=models.ManyToManyField(blank=True, null=True, related_name='mute_notification', to=settings.AUTH_USER_MODEL),
+            model_name="user",
+            name="mute",
+            field=models.ManyToManyField(
+                blank=True,
+                null=True,
+                related_name="mute_notification",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

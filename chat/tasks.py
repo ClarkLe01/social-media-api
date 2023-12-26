@@ -8,8 +8,5 @@ def send_notify(userId, data):
     channel_layer = channels.layers.get_channel_layer()
     async_to_sync(channel_layer.group_send)(
         f"user_{userId}",
-        {
-            "type": "message",
-            "data": data
-        },
+        {"type": "message", "data": data},
     )

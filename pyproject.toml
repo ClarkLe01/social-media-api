@@ -1,0 +1,34 @@
+[tool.black]
+line-length = 90
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  # The following are specific to Black, you probably don't want those.
+  | blib2to3
+  | tests/data
+  | profiling
+  | certbot
+  | letsencrypt
+  | venv
+  | static
+  | media
+)/
+'''
+preview = true
+[tool.isort]
+atomic = true
+profile = "black"
+line_length = 90
+skip_gitignore = true
+skip_glob = ["src/blib2to3", "tests/data", "profiling"]
+known_first_party = ["black", "blib2to3", "blackd", "_black_version"]

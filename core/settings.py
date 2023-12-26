@@ -9,36 +9,35 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
+
 import os
 from datetime import timedelta
 from pathlib import Path
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
 
+import cloudinary
+import cloudinary.api
+import cloudinary.uploader
 import sentry_sdk
 from sentry_sdk import capture_message
 from sentry_sdk.integrations.django import DjangoIntegration
 
 # import rollbar
-
+ENVIRONMENT = os.environ.get("ENVIRONMENT", "local")
 sentry_sdk.init(
     dsn=os.environ.get("SENTRY_DNS"),
     integrations=[
         DjangoIntegration(),
     ],
-
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for performance monitoring.
     # We recommend adjusting this value in production.
     traces_sample_rate=1.0,
-
     # If you wish to associate users to errors (assuming you are using
     # django.contrib.auth) you may enable sending PII data.
-    send_default_pii=True
+    send_default_pii=True,
 )
 
-capture_message("Sentry is configured correctly", level='info')
+capture_message("Sentry is configured correctly", level="info")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -61,61 +60,56 @@ APPEND_SLASH = False
 #
 # rollbar.init(**ROLLBAR)
 # rollbar.report_message('Rollbar is configured correctly', level='info')
-
 CSRF_TRUSTED_ORIGINS = [
-    'http://35.153.14.230',
-    'http://ec2-35-153-14-230.compute-1.amazonaws.com',
-    'http://localhost:80',
-    'http://127.0.0.1:80',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://35.169.112.71',
-    'http://ec2-35-169-112-71.compute-1.amazonaws.com',
-    'http://142.93.182.2',
+    "http://localhost:8000",
+    "http://localhost:3000",
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:3000",
 ]
-ALLOWED_HOSTS = ['ec2-35-153-14-230.compute-1.amazonaws.com', '35.153.14.230', 'http://ec2-35-169-112-71.compute-1.amazonaws.com', 'http://35.169.112.71', 'http://142.93.182.2', 'localhost', '127.0.0.1', '[::1]']
+ALLOWED_HOSTS = ["*"]
 CORS_ORIGIN_WHITELIST = [
-    'http://35.153.14.230:80',
-    'http://ec2-35-153-14-230.compute-1.amazonaws.com:80',
-    'http://localhost:80',
-    'http://127.0.0.1:80',
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
-    'http://35.169.112.71:80',
-    'http://ec2-35-169-112-71.compute-1.amazonaws.com:80',
-    'http://142.93.182.2:80',
+    "http://localhost:8000",
+    "http://localhost:3000",
+    "http://127.0.0.1:8000",
+    "http://127.0.0.1:3000",
 ]
+
+if ENVIRONMENT == "staging":
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
+    CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS").split(" ")
+    CORS_ORIGIN_WHITELIST = os.environ.get("CORS_ORIGIN_WHITELIST").split(" ")
 
 # Application definition
 
 INSTALLED_APPS = [
-    'daphne',
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'drf_yasg',
+    "drf_yasg",
     "corsheaders",
     "rest_framework",
     "rest_framework_simplejwt",
-    'channels',
+    "channels",
     "user",
     "notification",
     "chat",
     "calling",
     "friend",
     "post",
-    'django_filters',
-    'cloudinary',
+    "django_filters",
+    "cloudinary",
     "debug_toolbar",
 ]
 
 cloudinary.config(
     cloud_name=os.environ.get("CLOUDINARY_NAME", None),
     api_key=os.environ.get("CLOUDINARY_API_KEY", None),
-    api_secret=os.environ.get("CLOUDINARY_SECRET_KEY", None)
+    api_secret=os.environ.get("CLOUDINARY_SECRET_KEY", None),
 )
 
 MIDDLEWARE = [
@@ -148,7 +142,7 @@ ROOT_URLCONF = "core.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        'DIRS': [BASE_DIR / 'templates'],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -185,6 +179,7 @@ os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 #             'NAME': BASE_DIR / 'db.sqlite3',
 #         }
 #     }
+
 DATABASES = {
     "default": {
         "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.postgresql"),
@@ -196,15 +191,30 @@ DATABASES = {
     }
 }
 
+if ENVIRONMENT == "staging":
+    DATABASES = {
+        "default": {
+            "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.postgresql"),
+            "NAME": os.environ.get("POSTGRES_DB", "postgres"),
+            "USER": os.environ.get("POSTGRES_USER", "postgres"),
+            "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "postgres"),
+            "HOST": os.environ.get("DB_HOST", "localhost"),
+            "PORT": os.environ.get("DB_PORT", "5432"),
+            "OPTIONS": {"sslmode": "require"},
+        }
+    }
+
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
 PASSWORD_RESET_TIMEOUT = 86400
-AUTH_USER_MODEL = 'user.User'
+AUTH_USER_MODEL = "user.User"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+        ),
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -247,10 +257,10 @@ MEDIA_ROOT = BASE_DIR / "media"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
 SIMPLE_JWT = {
@@ -266,44 +276,53 @@ SIMPLE_JWT = {
     "JSON_ENCODER": None,
     "JWK_URL": None,
     "LEEWAY": 0,
-
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",
-    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
-
+    "USER_AUTHENTICATION_RULE": (
+        "rest_framework_simplejwt.authentication.default_user_authentication_rule"
+    ),
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "TOKEN_TYPE_CLAIM": "token_type",
     "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
-
     "JTI_CLAIM": "jti",
-
     "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
     "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
-
-    "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
-    "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
-    "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
-    "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
-    "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
-    "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
+    "TOKEN_OBTAIN_SERIALIZER": (
+        "rest_framework_simplejwt.serializers.TokenObtainPairSerializer"
+    ),
+    "TOKEN_REFRESH_SERIALIZER": (
+        "rest_framework_simplejwt.serializers.TokenRefreshSerializer"
+    ),
+    "TOKEN_VERIFY_SERIALIZER": (
+        "rest_framework_simplejwt.serializers.TokenVerifySerializer"
+    ),
+    "TOKEN_BLACKLIST_SERIALIZER": (
+        "rest_framework_simplejwt.serializers.TokenBlacklistSerializer"
+    ),
+    "SLIDING_TOKEN_OBTAIN_SERIALIZER": (
+        "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer"
+    ),
+    "SLIDING_TOKEN_REFRESH_SERIALIZER": (
+        "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer"
+    ),
 }
 
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "redis://127.0.0.1:6379/0")
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", "redis://127.0.0.1:6379/0")
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_CACHE_BACKEND = 'django-cache'
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_CACHE_BACKEND = "django-cache"
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = True
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+EMAIL_USE_TLS = bool(os.environ.get("EMAIL_USE_TLS", True))
 
 CHANNEL_LAYERS = {
     "default": {
@@ -324,4 +343,8 @@ if DEBUG:
     import socket  # only if you haven't already imported this
 
     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
-    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "localhost", "10.0.2.2"]
+    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + [
+        "127.0.0.1",
+        "localhost",
+        "10.0.2.2",
+    ]

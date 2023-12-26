@@ -1,8 +1,9 @@
-from .models import PostComment
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
-_UNSAVED_FILEFIELD = 'unsaved_filefield'
+from .models import PostComment
+
+_UNSAVED_FILEFIELD = "unsaved_filefield"
 
 
 @receiver(pre_save, sender=PostComment)

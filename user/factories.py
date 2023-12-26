@@ -1,7 +1,9 @@
 from copy import deepcopy
-from user.models import User
+
 import factory
 from faker import Faker
+
+from user.models import User
 
 fake = Faker()
 
@@ -10,12 +12,12 @@ class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User()
 
-    email = factory.Faker('email')
-    first_name = factory.Faker('first_name')
-    last_name = factory.Faker('last_name')
-    gender = factory.Faker('gender')
-    birthday = factory.Faker('birthday')
-    password = factory.Faker('password')
+    email = factory.Faker("email")
+    first_name = factory.Faker("first_name")
+    last_name = factory.Faker("last_name")
+    gender = factory.Faker("gender")
+    birthday = factory.Faker("birthday")
+    password = factory.Faker("password")
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):

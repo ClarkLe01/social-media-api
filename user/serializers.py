@@ -1,33 +1,43 @@
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.serializers import raise_errors_on_nested_writes
 from rest_framework.utils import model_meta
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.utils.translation import gettext_lazy as _
+
 from .models import User
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    default_error_messages = {
-        "no_active_account": _("Wrong Email or Password")
-    }
+    default_error_messages = {"no_active_account": _("Wrong Email or Password")}
 
     def validate(self, attrs):
         data = super().validate(attrs)
         data["id"] = self.user.id
         data["user"] = self.user.email
-        data['access_expires'] = int(settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds())
-        data['refresh_expires'] = int(settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds())
+        data["access_expires"] = int(
+            settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"].total_seconds()
+        )
+        data["refresh_expires"] = int(
+            settings.SIMPLE_JWT["REFRESH_TOKEN_LIFETIME"].total_seconds()
+        )
         return data
 
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'gender', 'birthday', 'password', 'first_name', 'last_name', 'online']
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
+        fields = [
+            "id",
+            "email",
+            "gender",
+            "birthday",
+            "password",
+            "first_name",
+            "last_name",
+            "online",
+        ]
+        extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):
         instance = self.Meta.model.objects.create_user(**validated_data)
@@ -37,9 +47,9 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = "__all__"
         extra_kwargs = {
-            'password': {'write_only': True},
+            "password": {"write_only": True},
         }
 
     def create(self, validated_data):
@@ -47,7 +57,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return instance
 
     def update(self, instance, validated_data):
-        raise_errors_on_nested_writes('update', self, validated_data)
+        raise_errors_on_nested_writes("update", self, validated_data)
         info = model_meta.get_field_info(instance)
 
         # Simply set each attribute on the instance, and then save it.
@@ -61,8 +71,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             else:
                 setattr(instance, attr, value)
 
-        if 'password' in validated_data.keys():
-            instance.set_password(validated_data.pop('password'))
+        if "password" in validated_data.keys():
+            instance.set_password(validated_data.pop("password"))
 
         instance.save()
         return instance
@@ -71,10 +81,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class FollowUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'follow']
+        fields = ["id", "email", "follow"]
 
 
 class MuteNotifyUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'mute']
+        fields = ["id", "email", "mute"]

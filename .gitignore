@@ -155,3 +155,5 @@ cython_debug/
 
 .idea
 test-results
+certbot/
+letsencrypt

@@ -1,10 +1,11 @@
 import json
 
+import channels.layers
 from asgiref.sync import async_to_sync
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
 from .models import Notification
-import channels.layers
 from .serializers import NotificationSerializer
 
 
@@ -17,8 +18,5 @@ def send_notification(sender, instance, created, **kwargs):
         print(data)
         async_to_sync(channel_layer.group_send)(
             f"user_{instance.receiverID.id}",
-            {
-                "type": "notify",
-                "value": data
-            },
+            {"type": "notify", "value": data},
         )

@@ -4,70 +4,46 @@ services:
   backend:
     build:
       context: .
-      dockerfile: Dockerfile.prod
-    command: /home/app/backend/entrypoint.prod.sh
+      dockerfile: Dockerfile
+    container_name: backend
+    command: /app/backend/entrypoint.prod.sh
     volumes:
-      - static_volume:/home/app/backend/static
-      - media_volume:/home/app/backend/media
-    expose:
-      - 8000
+      - static_volume:/app/backend/static
+      - media_volume:/app/backend/media
+    ports:
+      - 8000:8000
     env_file:
-      - ./.env.prod
-    depends_on:
-      - db
-  db:
-    image: postgres:15-alpine
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    env_file:
-      - ./.env.prod
-
-  redis:
-    image: redis:latest
+      - ./.env
 
   celery_worker:
     build:
       context: .
-      dockerfile: Dockerfile.prod
-    image: celery_worker
-    command: /home/app/backend/worker.sh
+      dockerfile: Dockerfile
+    container_name: celery_worker
+    command: /app/backend/worker.sh
     volumes:
-      - .:/home/app/backend
+      - .:/app/backend
     env_file:
-      - ./.env.prod
-    depends_on:
-      - redis
-      - db
+      - ./.env
 
-#  celery_beat:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile.prod
-#    image: celery_beat
-#    command: celery -A core beat
-#    volumes:
-#      - .:/home/app/backend
-#    env_file:
-#      - ./.env.prod
-#    depends_on:
-#      - redis
-#      - db
-
-  flower:
+  celery_beat:
     build:
       context: .
-      dockerfile: Dockerfile.prod
-    image: celery_flower
-    command: /home/app/backend/flower.sh
+      dockerfile: Dockerfile
+    container_name: celery_beat
+    command: /app/backend/beat.sh
     volumes:
-      - .:/home/app/backend
+      - .:/app/backend
     env_file:
-      - ./.env.prod
+      - ./.env
+
+  flower:
+    image: mher/flower:0.9.7
+    command: ['flower', '--broker=${CELERY_BROKER}', '--port=5555']
+    env_file:
+      - ./.env
     ports:
       - '5557:5555'
-    depends_on:
-      - redis
-      - db
 
   nginx:
     build: ./nginx
@@ -77,11 +53,20 @@ services:
       - "443:443"
     volumes:
       - ./nginx/:/etc/nginx/conf.d/
-      - static_volume:/home/app/backend/static
-      - media_volume:/home/app/backend/media
+      - static_volume:/app/backend/static
+      - media_volume:/app/backend/media
+      - ./letsencrypt/:/etc/letsencrypt/
+      - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
     depends_on:
       - backend
-      - flower
+  
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
 
 volumes:
   postgres_data:

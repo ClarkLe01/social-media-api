@@ -1,11 +1,11 @@
 from urllib.parse import parse_qs
 
 import jwt
-from channels.db import database_sync_to_async
 from channels.auth import get_user
+from channels.db import database_sync_to_async
 from channels.sessions import CookieMiddleware
-from django.contrib.auth import get_user_model
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from rest_framework.exceptions import AuthenticationFailed
 
 

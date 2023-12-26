@@ -17,6 +17,10 @@ COPY . /app/backend/
 RUN sed -i 's/\r$//g' /app/backend/entrypoint.sh
 RUN chmod +x /app/backend/entrypoint.sh
 
+COPY ./entrypoint.prod.sh .
+RUN sed -i 's/\r$//g' /app/backend/entrypoint.prod.sh
+RUN chmod +x /app/backend/entrypoint.prod.sh
+
 RUN sed -i 's/\r$//g' /app/backend/beat.sh
 RUN chmod +x /app/backend/beat.sh
 
@@ -28,3 +32,4 @@ RUN chmod +x /app/backend/flower.sh
 
 
 WORKDIR /app/backend/
+RUN pip install debugpy -t /tmp

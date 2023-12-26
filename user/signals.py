@@ -1,8 +1,10 @@
-from .models import User
+import os
+
+from django.core.files.storage import default_storage
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-import os
-from django.core.files.storage import default_storage
+
+from .models import User
 
 
 # _OLD_FILEFIELD = 'old_filefield'
@@ -32,7 +34,9 @@ from django.core.files.storage import default_storage
 #             default_storage.delete(old_image.path)
 @receiver(post_save, sender=User)
 def add_default_image(sender, instance, created, **kwargs):
-    if created and not instance.avatar and not instance.cover:  # Skip if instance is being created
-        instance.avatar = 'default/avatar_default.jpg'
-        instance.cover = 'default/cover_default.png'
+    if (
+        created and not instance.avatar and not instance.cover
+    ):  # Skip if instance is being created
+        instance.avatar = "default/avatar_default.jpg"
+        instance.cover = "default/cover_default.png"
         instance.save()

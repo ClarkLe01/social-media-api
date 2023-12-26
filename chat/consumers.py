@@ -8,7 +8,6 @@ from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 from .models import RoomChat
 
-
 # @database_sync_to_async
 # def get_user(user_id):
 #     try:
@@ -33,34 +32,58 @@ from .models import RoomChat
 class RoomConsumer(AsyncJsonWebsocketConsumer):
     @database_sync_to_async
     def get_room(self, room_id):
-        return RoomChat.objects.prefetch_related('members').get(pk=room_id)
+        return RoomChat.objects.prefetch_related("members").get(pk=room_id)
 
     async def connect(self):
         await self.accept()
         self.chat_room = self.scope["url_route"]["kwargs"]["roomId"]
         try:
             room = await self.get_room(room_id=self.chat_room)
-            if self.scope['user'] in room.members.all():
-                await self.channel_layer.group_add('room_'+self.chat_room, self.channel_name)
-                print('User', self.scope['user'].pk, ' connected to room_', self.chat_room)
-                await self.send_json({
-                    'alert': 'User' + str(
-                        self.scope['user'].pk) + ' connected to room_' + self.chat_room + ' successfully'
-                })
+            if self.scope["user"] in room.members.all():
+                await self.channel_layer.group_add(
+                    "room_" + self.chat_room, self.channel_name
+                )
+                print(
+                    "User", self.scope["user"].pk, " connected to room_", self.chat_room
+                )
+                await self.send_json(
+                    {
+                        "alert": (
+                            "User"
+                            + str(self.scope["user"].pk)
+                            + " connected to room_"
+                            + self.chat_room
+                            + " successfully"
+                        )
+                    }
+                )
             else:
-                await self.send_json({
-                    'alert': 'User' + str(
-                        self.scope['user'].pk) + ' can not join to room_' + self.chat_room
-                })
+                await self.send_json(
+                    {
+                        "alert": (
+                            "User"
+                            + str(self.scope["user"].pk)
+                            + " can not join to room_"
+                            + self.chat_room
+                        )
+                    }
+                )
                 await self.close()
         except (RoomChat.DoesNotExist, Disconnected):
-            await self.send_json({
-                'alert': 'room_' + str(self.chat_room) + ' does not exist'
-            })
+            await self.send_json(
+                {"alert": "room_" + str(self.chat_room) + " does not exist"}
+            )
             await self.close()
 
     async def disconnect(self, close_code):
-        print('User', self.scope['user'].pk, ' disconnected from room_', self.chat_room, 'close code ', str(close_code))
+        print(
+            "User",
+            self.scope["user"].pk,
+            " disconnected from room_",
+            self.chat_room,
+            "close code ",
+            str(close_code),
+        )
         await self.channel_layer.group_discard(self.chat_room, self.channel_name)
 
     async def message(self, content, close=False):
