@@ -61,6 +61,7 @@ class RoomChat(models.Model):
     isGroup = models.BooleanField(default=False)
     updated = models.DateTimeField(default=timezone.now)
     roomAvatar = AvatarRoomField(null=True, blank=True)
+    active = models.BooleanField(default=True)
 
     def __str__(self):
         return "RoomChat {0}".format(self.id)
@@ -152,6 +153,7 @@ class Message(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     isRemoved = models.BooleanField(default=False)
     files = models.ManyToManyField(File, null=True, blank=True)
+    active = models.BooleanField(default=True)
 
     class Meta:
         ordering = ("created",)

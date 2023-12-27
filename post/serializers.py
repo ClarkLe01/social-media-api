@@ -72,3 +72,9 @@ class PostCommentDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostComment
         fields = "__all__"
+
+
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
+        fields = "__all__"

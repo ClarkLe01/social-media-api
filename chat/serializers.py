@@ -56,6 +56,7 @@ class MessageSerializer(serializers.ModelSerializer):
             "receiverID",
             "seen_by",
             "files",
+            "active",
         )
 
     def get_seen_by(self, obj):

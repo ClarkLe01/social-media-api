@@ -2,10 +2,9 @@ import cloudinary
 import cloudinary.uploader
 from django.db.models import Q
 from rest_framework import generics, mixins, permissions, status
-from rest_framework.exceptions import ValidationError
-from rest_framework.generics import GenericAPIView, get_object_or_404
 from rest_framework.response import Response
 
+from core.mixins import SoftDestroyModelMixin
 from friend.models import Friend
 from notification.models import Notification
 from user.models import User
@@ -13,9 +12,8 @@ from user.models import User
 from .models import Image, Post, PostComment, PostInteraction
 from .serializers import (
     CreatePostCommentSerializer,
-    CreatePostImageSerializer,
-    CreatePostInteractionSerializer,
     CreatePostSerializer,
+    ImageSerializer,
     PostCommentDetailSerializer,
     PostDetailSerializer,
     PostInteractionsDetailSerializer,
@@ -120,29 +118,31 @@ class PostCreateView(generics.CreateAPIView):
 class UserPostListView(generics.ListAPIView):
     serializer_class = PostDetailSerializer
     permission_classes = [permissions.IsAuthenticated]
-    queryset = Post.objects.all()
+    queryset = Post.objects.filter(active=True)
 
     def get_queryset(self):
         user_id = self.kwargs.get("pk")
-        queryset = Post.objects.filter(owner__id=user_id).order_by("-created")
+        queryset = self.queryset.filter(owner__id=user_id).order_by("-created")
         return queryset
 
 
 class PostListView(generics.ListAPIView):
     serializer_class = PostDetailSerializer
     permission_classes = [permissions.IsAuthenticated]
-    queryset = Post.objects.all()
+    queryset = Post.objects.filter(active=True)
 
     def get_queryset(self):
-        queryset = Post.objects.filter(
+        queryset = self.queryset.filter(
             Q(can_see=self.request.user) | Q(status=Post.Status.PUBLIC)
         ).order_by("-created")
         return queryset
 
 
-class PostRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+class PostRetrieveUpdateDeleteView(
+    generics.RetrieveUpdateDestroyAPIView, SoftDestroyModelMixin
+):
     permission_classes = [permissions.IsAuthenticated]
-    queryset = Post.objects.all()
+    queryset = Post.objects.filter(active=True)
     serializer_class = PostDetailSerializer
 
     def retrieve(self, request, *args, **kwargs):
@@ -199,7 +199,7 @@ class PostRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         if request.user.id == instance.owner.id:
-            self.perform_destroy(instance)
+            self.perform_soft_destroy(instance)
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(
@@ -209,17 +209,17 @@ class PostRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
 
 class CommentListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    queryset = PostComment.objects.all()
+    queryset = PostComment.objects.filter(active=True)
     serializer_class = PostCommentDetailSerializer
 
     def get_queryset(self):
-        queryset = PostComment.objects.filter(post__id=self.kwargs.get("pk"))
+        queryset = PostComment.objects.filter(post__id=self.kwargs.get("pk"), active=True)
         if len(queryset) == 0:
             return None
         return queryset
 
     def list(self, request, *args, **kwargs):
-        post = Post.objects.get(pk=self.kwargs.get("pk"))
+        post = Post.objects.filter(active=True).get(pk=self.kwargs.get("pk"))
         if (
             post.owner != request.user
             and request.user not in post.can_see.all()
@@ -240,7 +240,7 @@ class CommentListView(generics.ListAPIView):
 
 class CommentCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    queryset = PostComment.objects.all()
+    queryset = PostComment.objects.filter(active=True)
     serializer_class = CreatePostCommentSerializer
 
     def create(self, request, *args, **kwargs):
@@ -275,7 +275,7 @@ class CommentCreateView(generics.CreateAPIView):
 
 class CommentUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    queryset = PostComment.objects.all()
+    queryset = PostComment.objects.filter(active=True)
     serializer_class = CreatePostCommentSerializer
 
     def update(self, request, *args, **kwargs):
@@ -296,7 +296,8 @@ class CommentUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
             instance._prefetched_objects_cache = {}
 
         data = PostCommentDetailSerializer(
-            PostComment.objects.get(pk=serializer.data["id"]), many=False
+            PostComment.objects.filter(active=True).get(pk=serializer.data["id"]),
+            many=False,
         ).data
         return Response(data)
 
@@ -362,3 +363,13 @@ class InteractionAPIView(generics.RetrieveUpdateDestroyAPIView):
                 read=False,
             )
         return Response(serializer.data)
+
+
+class PhotoListView(generics.ListAPIView):
+    serializer_class = ImageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    # queryset = Image.objects.all()
+
+    def get_queryset(self):
+        queryset = self.request.user.post_images.all()
+        return queryset

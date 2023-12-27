@@ -1,5 +1,3 @@
-from copy import deepcopy
-
 import factory
 from faker import Faker
 

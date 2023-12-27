@@ -23,7 +23,7 @@ from .tasks import send_notify
 # Create your views here.
 class RoomChatCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    queryset = RoomChat.objects.all()
+    queryset = RoomChat.objects.filter(active=True)
     serializer_class = RoomChatCreateSerializer
 
     def create(self, request, *args, **kwargs):
@@ -134,7 +134,7 @@ class RoomChatCreateView(generics.CreateAPIView):
 
 class RoomChatUpdateView(generics.UpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    queryset = RoomChat.objects.all()
+    queryset = RoomChat.objects.filter(active=True)
     serializer_class = RoomChatCreateSerializer
     lookup_field = "pk"
 
@@ -144,7 +144,7 @@ class RoomChatListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return RoomChat.objects.filter(members=self.request.user)
+        return RoomChat.objects.filter(members=self.request.user, active=True)
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -199,7 +199,7 @@ class MembersDetailListView(generics.ListAPIView):
 
 class MemberInfoRoomUpdateView(generics.UpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    queryset = RoomChat.objects.all()
+    queryset = RoomChat.objects.filter(active=True)
     serializer_class = MembershipSerializer
     lookup_field = "pk"
 
@@ -348,7 +348,7 @@ class MessageListView(generics.ListAPIView):
                 {"error": "The room does not exist!"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        queryset = Message.objects.filter(receiverID=room)
+        queryset = Message.objects.filter(receiverID=room, active=True)
         queryset = self.filter_queryset(queryset)
 
         page = self.paginate_queryset(queryset)
@@ -365,8 +365,10 @@ class SeenMessageListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        message = Message.objects.prefetch_related("receiverID").get(
-            pk=self.kwargs.get("messageId")
+        message = (
+            Message.objects.filter(active=True)
+            .prefetch_related("receiverID")
+            .get(pk=self.kwargs.get("messageId"))
         )
         if self.request.user not in message.receiverID.members.all():
             return Response(
@@ -431,7 +433,8 @@ class DeleteGroupChatAPIView(APIView):
         roomId = data.pop("roomId", None)
         if roomId is not None:
             roomChat = RoomChat.objects.get(id=roomId)
-            roomChat.delete()
+            roomChat.active = False
+            roomChat.save()
             return Response("Ok", status=status.HTTP_200_OK)
         return Response(
             {"error": "Please give fully information"}, status=status.HTTP_400_BAD_REQUEST
