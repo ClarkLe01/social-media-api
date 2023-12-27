@@ -112,15 +112,17 @@ class Post(models.Model):
     )
     can_see = models.ManyToManyField(User, null=True, blank=True, related_name="CanSee")
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    active = models.BooleanField(default=True)
 
 
 class PostComment(models.Model):
     content = models.TextField(null=True, blank=True)
     file = CommentFileField()
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    active = models.BooleanField(default=True)
 
     class Meta:
         ordering = ("-created",)
@@ -139,15 +141,16 @@ class PostInteraction(models.Model):
     type = models.CharField(
         max_length=255, choices=Interaction.choices, default=Interaction.UNLIKE
     )
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="interactions")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="interactions")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
 
 class Image(models.Model):
     file = PostFileField()
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="images")
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="post_images")
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    active = models.BooleanField(default=True)

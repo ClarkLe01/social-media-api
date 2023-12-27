@@ -5,6 +5,7 @@ from .views import (
     CommentListView,
     CommentUpdateDeleteView,
     InteractionAPIView,
+    PhotoListView,
     PostCreateView,
     PostListView,
     PostRetrieveUpdateDeleteView,
@@ -25,4 +26,5 @@ urlpatterns = [
         name="update_delete_comment",
     ),
     path("/<int:pk>/interaction", InteractionAPIView.as_view(), name="user_interaction"),
+    path("/photos", PhotoListView.as_view(), name="post_photos"),
 ]

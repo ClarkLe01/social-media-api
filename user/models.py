@@ -124,8 +124,8 @@ class CustomUserManager(BaseUserManager):
 
 class User(AbstractUser):
     email = models.EmailField(max_length=100, unique=True)
-    first_name = models.CharField("first name", max_length=150, blank=True)
-    last_name = models.CharField("last name", max_length=150, blank=True)
+    first_name = models.CharField("first name", max_length=150)
+    last_name = models.CharField("last name", max_length=150)
     cover = CoverField()
     avatar = AvatarField()
     MALE = "male"
