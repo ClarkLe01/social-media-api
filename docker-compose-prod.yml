@@ -37,14 +37,6 @@ services:
     env_file:
       - ./.env
 
-  flower:
-    image: mher/flower:0.9.7
-    command: ['flower', '--broker=${CELERY_BROKER}', '--port=5555']
-    env_file:
-      - ./.env
-    ports:
-      - '5557:5555'
-
   nginx:
     build: ./nginx
     restart: always
