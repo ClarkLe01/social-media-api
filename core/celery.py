@@ -7,16 +7,10 @@ from celery.schedules import crontab
 
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
+cronitor.api_key = os.getenv("CRONITOR_API_KEY")
+cronitor.environment = os.getenv("ENVIRONMENT")
 app = Celery("core")
-if os.getenv("ENVIRONMENT") == "staging":
-    app = Celery(
-        "core",
-        broker_use_ssl={"ssl_cert_reqs": ssl.CERT_NONE},
-        redis_backend_use_ssl={"ssl_cert_reqs": ssl.CERT_NONE},
-    )
-if os.getenv("CRONITOR_API_KEY"):
-    cronitor.api_key = os.getenv("CRONITOR_API_KEY")
-    cronitor.environment = os.getenv("ENVIRONMENT")
+if cronitor.api_key:
     cronitor.celery.initialize(app)
 
 # Using a string here means the worker doesn't have to serialize

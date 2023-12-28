@@ -51,15 +51,6 @@ DEBUG = int(os.environ.get("DEBUG", default=1))
 
 APPEND_SLASH = False
 
-# ROLLBAR = {
-#     'access_token': '15a34ed3a5594e11ac67a77240015af3',
-#     'environment': 'development' if DEBUG else 'production',
-#     'code_version': '1.0',
-#     'root': BASE_DIR,
-# }
-#
-# rollbar.init(**ROLLBAR)
-# rollbar.report_message('Rollbar is configured correctly', level='info')
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://localhost:3000",
@@ -74,7 +65,7 @@ CORS_ORIGIN_WHITELIST = [
     "http://127.0.0.1:3000",
 ]
 
-if ENVIRONMENT == "staging":
+if ENVIRONMENT == "Staging":
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
     CSRF_TRUSTED_ORIGINS = os.environ.get("CSRF_TRUSTED_ORIGINS").split(" ")
@@ -191,7 +182,7 @@ DATABASES = {
     }
 }
 
-if ENVIRONMENT == "staging":
+if ENVIRONMENT == "Staging":
     DATABASES = {
         "default": {
             "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.postgresql"),
