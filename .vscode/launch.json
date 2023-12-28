@@ -18,7 +18,7 @@
                     "remoteRoot": "/app/backend"
                 }
             ],
-            "justMyCode": true
+            "justMyCode": false
         },
         {
             "name": "Python: Celery Worker",

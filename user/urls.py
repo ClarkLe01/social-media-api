@@ -1,16 +1,12 @@
 from django.urls import path
 
-from .views import (
-    FollowUserRetrieveView,
+from user.views import (
     FollowUserView,
-    MuteNotifyUserRetrieveView,
-    MuteNotifyUserView,
     MyProfileView,
     MyTokenObtainPairView,
     RequestForgotPassword,
     ResetForgotPassword,
     UnFollowUserView,
-    UnMuteNotifyUserView,
     UpdateMyProfileView,
     UserProfileView,
     UserRegisterAPIView,
@@ -39,8 +35,4 @@ urlpatterns = [
     ),
     path("/follow", FollowUserView.as_view(), name="follow_user"),
     path("/unfollow", UnFollowUserView.as_view(), name="unfollow_user"),
-    path("/follows/<int:pk>", FollowUserRetrieveView.as_view(), name="follow_people"),
-    path("/mute", MuteNotifyUserView.as_view(), name="mute_user"),
-    path("/unmute", UnMuteNotifyUserView.as_view(), name="unmute_user"),
-    path("/mutes/<int:pk>", MuteNotifyUserRetrieveView.as_view(), name="mute_people"),
 ]

@@ -3,7 +3,6 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.signing import Signer
 from django.db.models import Q
 from django.template.loader import get_template
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -11,17 +10,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from friend.models import Friend
-from user.tasks import send_email
-
-from .models import User
-from .serializers import (
-    FollowUserSerializer,
-    MuteNotifyUserSerializer,
+from friend.models import RequestFriend
+from user.models import AdditionalProfile, User
+from user.serializers import (
     MyTokenObtainPairSerializer,
     UserProfileSerializer,
     UserSerializer,
 )
+from user.tasks import send_email
 
 signer = Signer(salt="extra")
 
@@ -219,7 +215,7 @@ class UsersListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        friends_queries = Friend.objects.filter(status=True).filter(
+        friends_queries = RequestFriend.objects.filter(status=True).filter(
             Q(requestID=user.id) | Q(responseID=user.id)
         )
         friend = [user.id]
@@ -238,7 +234,7 @@ class FollowUserView(APIView):
         userId = request.data.get("userId", None)
         try:
             user = User.objects.get(pk=userId)
-            request.user.follow.add(user)
+            request.user.profile.follow.add(user)
             return Response(
                 data={"status": "200", "message": "OK"}, status=status.HTTP_200_OK
             )
@@ -256,7 +252,7 @@ class UnFollowUserView(APIView):
         userId = request.data.get("userId", None)
         try:
             user = User.objects.get(pk=userId)
-            request.user.follow.remove(user)
+            request.user.profile.follow.remove(user)
             return Response(
                 data={"status": "200", "message": "OK"}, status=status.HTTP_200_OK
             )
@@ -265,53 +261,3 @@ class UnFollowUserView(APIView):
                 data={"status": "404", "message": "NOT_FOUND"},
                 status=status.HTTP_404_NOT_FOUND,
             )
-
-
-class FollowUserRetrieveView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated]
-    queryset = User.objects.all()
-    serializer_class = FollowUserSerializer
-    lookup_field = "pk"
-
-
-class MuteNotifyUserView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, format=None):
-        userId = request.data.get("userId", None)
-        try:
-            user = User.objects.get(pk=userId)
-            request.user.mute.add(user)
-            return Response(
-                data={"status": "200", "message": "OK"}, status=status.HTTP_200_OK
-            )
-        except User.DoesNotExist:
-            return Response(
-                data={"status": "404", "message": "NOT_FOUND"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-
-class UnMuteNotifyUserView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, format=None):
-        userId = request.data.get("userId", None)
-        try:
-            user = User.objects.get(pk=userId)
-            request.user.mute.remove(user)
-            return Response(
-                data={"status": "200", "message": "OK"}, status=status.HTTP_200_OK
-            )
-        except User.DoesNotExist:
-            return Response(
-                data={"status": "404", "message": "NOT_FOUND"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-
-class MuteNotifyUserRetrieveView(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated]
-    queryset = User.objects.all()
-    serializer_class = MuteNotifyUserSerializer
-    lookup_field = "pk"

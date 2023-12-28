@@ -5,7 +5,7 @@ from rest_framework import generics, mixins, permissions, status
 from rest_framework.response import Response
 
 from core.mixins import SoftDestroyModelMixin
-from friend.models import Friend
+from friend.models import RequestFriend
 from notification.models import Notification
 from user.models import User
 
@@ -46,7 +46,7 @@ class PostCreateView(generics.CreateAPIView):
         for file in request.FILES.getlist("files"):
             Image.objects.create(post=new_post, file=file, owner=request.user)
         can_see = []  # noqa: F841
-        friends = Friend.objects.filter(status=True).filter(
+        friends = RequestFriend.objects.filter(status=True).filter(
             Q(requestID=request.user.id) | Q(responseID=request.user.id)
         )
         if (

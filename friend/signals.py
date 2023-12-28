@@ -1,14 +1,13 @@
 from django.db.models.signals import post_delete, pre_delete
 from django.dispatch import receiver
 
+from friend.models import RequestFriend
 from notification.models import Notification
-
-from .models import Friend
 
 _TYPE_NOTIFICATION_REF = "type_notification_ref"
 
 
-@receiver(post_delete, sender=Friend)
+@receiver(post_delete, sender=RequestFriend)
 def after_delete(sender, instance, **kwargs):
     if len(sender.objects.filter(pk=instance.id)) == 0:
         remove_notification_targets = Notification.objects.filter(

@@ -4,7 +4,7 @@ from user.models import User
 
 
 # Create your models here.
-class Friend(models.Model):
+class RequestFriend(models.Model):
     requestID = models.ForeignKey(User, on_delete=models.CASCADE, related_name="request")
     responseID = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="response"
