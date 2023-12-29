@@ -1,4 +1,4 @@
-from django.db.models.signals import post_delete, pre_delete
+from django.db.models.signals import m2m_changed, post_delete, pre_delete
 from django.dispatch import receiver
 
 from friend.models import RequestFriend

@@ -3,7 +3,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from chat.models import RoomChat
+from chat.models import RoomChat, RoomChatProfile
 from friend.models import RequestFriend
 from friend.serializers import FriendSerializer
 from notification.models import Notification
@@ -95,6 +95,7 @@ class AcceptFriendRequestView(generics.UpdateAPIView):
         if request_friend.responseID == request.user:
             request.user.profile.friend.add(request_friend.requestID)
             request_friend.requestID.profile.friend.add(request.user)
+            # request_friend.status = False
             serializer = self.get_serializer(request_friend)
             Notification.objects.create(
                 senderID=request.user,
@@ -103,9 +104,16 @@ class AcceptFriendRequestView(generics.UpdateAPIView):
                 content="accepted your request to make a friend",
                 read=False,
             )
+            members = list([request_friend.requestID.id, request_friend.responseID.id])
+            members.sort()
+            room_id = "_".join([str(x) for x in members])
+            if not RoomChatProfile.objects.filter(identify=room_id).exists():
+                room_chat = RoomChat.objects.create()
+                RoomChatProfile.objects.get_or_create(
+                    roomChat=room_chat, identify=room_id
+                )
+                room_chat.members.set(members)
             request_friend.delete()
-            # room_chat = RoomChat.objects.create()
-            # room_chat.members.set([request_friend.requestID, request.user])
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(
@@ -121,9 +129,7 @@ class FriendResponsesListView(generics.ListAPIView):
     queryset = RequestFriend.objects.all()
 
     def get_queryset(self):
-        queryset = RequestFriend.objects.filter(
-            status=False, responseID=self.request.user
-        )
+        queryset = RequestFriend.objects.filter(status=True, responseID=self.request.user)
         return queryset
 
 
@@ -134,7 +140,7 @@ class FriendRequestsListView(generics.ListAPIView):
     queryset = RequestFriend.objects.all()
 
     def get_queryset(self):
-        queryset = RequestFriend.objects.filter(status=False, requestID=self.request.user)
+        queryset = RequestFriend.objects.filter(status=True, requestID=self.request.user)
         return queryset
 
 
