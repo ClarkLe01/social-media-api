@@ -16,3 +16,4 @@ done
 celery -A core  \
     --broker="${CELERY_BROKER}" \
     flower
+exec "$@"
