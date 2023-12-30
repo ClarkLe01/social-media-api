@@ -149,6 +149,7 @@ class FriendListView(generics.ListAPIView):
 
     def get_queryset(self):
         user_id = self.kwargs.get("pk")
-        profile, created = AdditionalProfile.objects.get_or_create(user__id=user_id)
+        user = User.objects.get(pk=user_id)
+        profile, created = AdditionalProfile.objects.get_or_create(user=user)
         queryset = profile.friend.all()
         return queryset
