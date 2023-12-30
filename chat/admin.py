@@ -1,9 +1,10 @@
 from django.contrib import admin
 
-from .models import File, Membership, Message, RoomChat, Seen
+from chat.models import File, Membership, Message, RoomChat, RoomChatProfile, Seen
 
 # Register your models here.
 admin.site.register(RoomChat)
+admin.site.register(RoomChatProfile)
 admin.site.register(Membership)
 admin.site.register(Message)
 admin.site.register(Seen)

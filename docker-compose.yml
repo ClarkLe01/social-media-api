@@ -43,20 +43,6 @@ services:
       - redis
       - db
 
-  celery_beat:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: celery_beat
-    command: /app/backend/beat.sh
-    volumes:
-      - .:/app/backend
-    env_file:
-      - .env
-    depends_on:
-      - redis
-      - db
-
   flower:
     build:
       context: .

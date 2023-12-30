@@ -4,7 +4,7 @@ from django.core.files.storage import default_storage
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
-from .models import User
+from user.models import AdditionalProfile, User
 
 
 # _OLD_FILEFIELD = 'old_filefield'
@@ -24,14 +24,12 @@ from .models import User
 #         setattr(instance, _OLD_FILEFIELD, old_instance.cover)
 #
 #
-# @receiver(post_save, sender=User)
-# def delete_old_image(sender, instance, created, **kwargs):
-#     if created:  # Skip if instance is being created
-#         return
-#     if hasattr(instance, _OLD_FILEFIELD):
-#         old_image = getattr(instance, _OLD_FILEFIELD)
-#         if os.path.isfile(old_image.path):
-#             default_storage.delete(old_image.path)
+@receiver(post_save, sender=User)
+def create_profile(sender, instance, created, **kwargs):
+    if created:  # Skip if instance is being created
+        AdditionalProfile.objects.get_or_create(user=instance)
+
+
 @receiver(post_save, sender=User)
 def add_default_image(sender, instance, created, **kwargs):
     if (

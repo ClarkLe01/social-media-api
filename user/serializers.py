@@ -5,7 +5,7 @@ from rest_framework.serializers import raise_errors_on_nested_writes
 from rest_framework.utils import model_meta
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import User
+from user.models import AdditionalProfile, User
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -76,15 +76,3 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
-
-
-class FollowUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["id", "email", "follow"]
-
-
-class MuteNotifyUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["id", "email", "mute"]

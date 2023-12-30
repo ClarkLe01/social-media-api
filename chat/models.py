@@ -67,6 +67,13 @@ class RoomChat(models.Model):
         return "RoomChat {0}".format(self.id)
 
 
+class RoomChatProfile(models.Model):
+    roomChat = models.OneToOneField(
+        RoomChat, on_delete=models.CASCADE, related_name="profile"
+    )
+    identify = models.CharField(max_length=255, unique=True)
+
+
 class Membership(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="user_membership"

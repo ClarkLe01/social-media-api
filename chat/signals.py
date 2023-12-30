@@ -6,8 +6,8 @@ from django.core.files.storage import default_storage
 from django.db.models.signals import m2m_changed, post_save, pre_save
 from django.dispatch import receiver
 
-from .models import Message, RoomChat
-from .serializers import MessageSerializer, RoomChatSerializer
+from chat.models import Message, RoomChat, RoomChatProfile
+from chat.serializers import MessageSerializer, RoomChatSerializer
 
 _OLD_FILEFIELD = "old_filefield"
 
@@ -40,6 +40,9 @@ def send_files(sender, instance, action, **kwargs):
 @receiver(m2m_changed, sender=RoomChat.members.through)
 def add_members(sender, instance, action, **kwargs):
     if action == "post_add":
+        memberIds = list([str(member.id) for member in instance.members.order_by("pk")])
+        instance.profile.identify = "_".join(memberIds)
+        instance.profile.save()
         channel_layer = channels.layers.get_channel_layer()
         async_to_sync(channel_layer.group_send)(
             f"room_{instance.id}",
@@ -48,6 +51,11 @@ def add_members(sender, instance, action, **kwargs):
                 "data": RoomChatSerializer(instance, many=False).data,
             },
         )
+    if action == "post_remove":
+        memberIds = [str(member.id) for member in instance.members.order_by("pk")]
+        if len(memberIds) >= 2:
+            instance.profile.identify = "_".join(memberIds)
+            instance.save()
 
 
 @receiver(pre_save, sender=RoomChat)

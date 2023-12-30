@@ -3,10 +3,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from user.models import User
-
-from .models import File, Membership, Message, RoomChat, Seen
-from .serializers import (
+from chat.models import File, Membership, Message, RoomChat, RoomChatProfile, Seen
+from chat.serializers import (
     FileSerializer,
     MemberSerializer,
     MembershipSerializer,
@@ -17,7 +15,8 @@ from .serializers import (
     RoomChatSerializer,
     SeenSerializer,
 )
-from .tasks import send_notify
+from chat.tasks import send_notify
+from user.models import User
 
 
 # Create your views here.
@@ -29,6 +28,7 @@ class RoomChatCreateView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         data = {key: value for (key, value) in request.data.items()}
         members = list(User.objects.get(id=x) for x in data["members"].split(","))
+
         if len(members) == 0 or (
             len(request.FILES.getlist("chatFiles")) == 0
             and len(request.data.get("content")) == 0
@@ -36,23 +36,35 @@ class RoomChatCreateView(generics.CreateAPIView):
             return Response(
                 {"error": "Created Failed"}, status=status.HTTP_400_BAD_REQUEST
             )
-
-        serializer = self.get_serializer(
-            data={
-                "roomName": "",
-                "isGroup": True if len(members) > 1 else False,
-            }
-        )
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        room = RoomChat.objects.get(id=serializer.data["id"])
-        # room.members.set(members)
-        if room.isGroup:
-            room.members.set(members, through_defaults={"role": "member"})
-            room.members.add(request.user, through_defaults={"role": "admin"})
+        identify_ids = set(x for x in data["members"].split(","))
+        identify_ids.add(str(request.user.id))
+        identify_ids = list(identify_ids)
+        identify_ids.sort()
+        identify = "_".join(identify_ids)
+        if RoomChatProfile.objects.filter(identify=identify).exists():
+            roomchat_profile = RoomChatProfile.objects.get(identify=identify)
+            room = roomchat_profile.roomChat
+            serializer = self.get_serializer(room)
         else:
-            room.members.add(members, through_defaults={"role": "member"})
-            room.members.add(request.user, through_defaults={"role": "member"})
+            serializer = self.get_serializer(
+                data={
+                    "roomName": "",
+                    "isGroup": True if len(members) > 1 else False,
+                }
+            )
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            room = RoomChat.objects.get(id=serializer.data["id"])
+            roomchat_profile = RoomChatProfile.objects.create(
+                roomChat=room, identify=identify
+            )
+
+            if room.isGroup:
+                room.members.set(members, through_defaults={"role": "member"})
+                room.members.add(request.user, through_defaults={"role": "admin"})
+            else:
+                room.members.add(members, through_defaults={"role": "member"})
+                room.members.add(request.user, through_defaults={"role": "member"})
 
         try:
             if len(request.FILES.getlist("chatFiles")) > 0:
@@ -88,7 +100,6 @@ class RoomChatCreateView(generics.CreateAPIView):
 
                 messageImages_serializer.is_valid(raise_exception=True)
                 messageImages_serializer.save()
-                print("messageImages_serializer", messageImages_serializer.data)
 
                 for video in videos:
                     messageVideo_serializer = MessageCreateSerializer(
