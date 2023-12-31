@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from cms.paginations import PostPagination, UserPagination
 from cms.permissions import IsSuperAdminUser
 from cms.serializers import AdminTokenObtainPairSerializer
 from post.models import Post
@@ -17,12 +18,25 @@ class CmsPostListApi(generics.ListCreateAPIView):
     queryset = Post.objects.all()
     serializer_class = CreatePostSerializer
     permission_classes = [IsSuperAdminUser]
+    pagination_class = PostPagination
 
 
 class CmsUserListApi(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
     permission_classes = [IsSuperAdminUser]
+    pagination_class = UserPagination
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = self.queryset
+        is_admin = self.request.query_params.get("admin")
+        if is_admin is not None:
+            queryset = queryset.filter(is_superuser=is_admin)
+        return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
