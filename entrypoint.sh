@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # if any of the commands in your code fails for any reason, the entire script fails
 set -o errexit
 # fail exit if one of your pipe command fails

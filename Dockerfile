@@ -1,12 +1,14 @@
 # pull official base image
-FROM python:3.9.6-alpine
+FROM python:3.9-slim-buster
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # install psycopg2 dependencies
-RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev
+RUN apt-get update
+RUN apt-get install -y gcc python3-dev musl-dev libpq-dev
+RUN apt-get install ffmpeg libsm6 libxext6 libgl1-mesa-glx -y
 
 # install dependencies
 RUN pip install --upgrade pip
