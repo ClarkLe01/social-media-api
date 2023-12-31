@@ -45,9 +45,7 @@ class PostCreateView(generics.CreateAPIView):
         for file in request.FILES.getlist("files"):
             Image.objects.create(post=new_post, file=file, owner=request.user)
         can_see = []  # noqa: F841
-        friends = RequestFriend.objects.filter(status=True).filter(
-            Q(requestID=request.user.id) | Q(responseID=request.user.id)
-        )
+        friends = request.user.profile.friends.all()
         if (
             serializer.data["status"] == "friends"
             or serializer.data["status"] == "friendExcepts"
