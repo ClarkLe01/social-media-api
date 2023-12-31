@@ -7,8 +7,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from cms.paginations import PostPagination, UserPagination
 from cms.permissions import IsSuperAdminUser
 from cms.serializers import AdminTokenObtainPairSerializer
-from post.models import Post
-from post.serializers import CreatePostSerializer
+from post.models import Post, Image
+from post.serializers import CreatePostSerializer, PostDetailSerializer
 from user.models import User
 from user.serializers import AdminSerializer, UserProfileSerializer
 
@@ -19,6 +19,44 @@ class CmsPostListApi(generics.ListCreateAPIView):
     serializer_class = CreatePostSerializer
     permission_classes = [IsSuperAdminUser]
     pagination_class = PostPagination
+    
+
+class PostRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsSuperAdminUser]
+    queryset = Post.objects.all()
+    serializer_class = PostDetailSerializer
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        data = {key: value for (key, value) in request.data.items()}
+        partial = kwargs.pop("partial", False)
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, "_prefetched_objects_cache", None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+        can_see_data = data.pop("canSee", "")
+        not_see_data = data.pop("notSee", "")
+        try:
+            can_see_data = list(int(x) for x in can_see_data.split(","))
+        except ValueError:
+            can_see_data = []
+        try:
+            not_see_data = list(int(x) for x in not_see_data.split(","))
+        except ValueError:
+            not_see_data = []
+
+        images = Image.objects.filter(post=instance)
+        for image in images:
+            # cloudinary.uploader.destroy(image.file.public_id)
+            image.delete()
+        if len(request.FILES.getlist("files")) > 0:
+            for file in request.FILES.getlist("files"):
+                Image.objects.create(post=instance, file=file, owner=instance.owner)
+        return Response(PostDetailSerializer(instance, many=False).data)
 
 
 class CmsUserListApi(generics.ListCreateAPIView):
