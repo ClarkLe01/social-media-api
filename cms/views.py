@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework import generics, permissions, status
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -299,3 +300,11 @@ class CmsMediaActionApiView(generics.RetrieveUpdateDestroyAPIView):
             instance._prefetched_objects_cache = {}
 
         return Response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes([IsSuperAdminUser])
+def getMyProfile(request):
+    user = request.user
+    serializer = UserProfileSerializer(user, many=False)
+    return Response(serializer.data, status.HTTP_200_OK)
