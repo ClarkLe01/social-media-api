@@ -10,7 +10,7 @@ from cms.serializers import AdminTokenObtainPairSerializer
 from post.models import Post
 from post.serializers import CreatePostSerializer
 from user.models import User
-from user.serializers import UserProfileSerializer
+from user.serializers import AdminSerializer, UserProfileSerializer
 
 
 # Create your views here.
@@ -91,3 +91,44 @@ class CmsLoginApi(TokenObtainPairView):
         except Exception as err:
             return Response({"detail": err.args[0]}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
+
+
+class CmsAdminRegisterAPIView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = AdminSerializer
+    permission_classes = [IsSuperAdminUser]
+
+    def create(self, request, *args, **kwargs):
+        """
+        data = {
+            'first_name': 'Clark',
+            'last_name': 'Le',
+            'email': '',
+            'password': 'Lnha2001',
+            'confirm_password': 'Lnha2001',
+            'gender': 'female',
+            'birthday': '2023-02-09T17:00:00.000Z'
+        }
+        """
+        if User.objects.filter(email=request.data["email"]).exists():
+            return Response("Your email existed!", status=status.HTTP_400_BAD_REQUEST)
+        elif len(request.data["password"]) < 6:
+            return Response(
+                "Password must be at least 6 characters!",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        elif request.data["password"] != request.data["confirm_password"]:
+            return Response(
+                "Confirm Password does not match!", status=status.HTTP_400_BAD_REQUEST
+            )
+        else:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            print(serializer.data)
+            headers = self.get_success_headers(serializer.data)
+            return Response(
+                {"token": serializer.data["id"]},
+                status=status.HTTP_201_CREATED,
+                headers=headers,
+            )

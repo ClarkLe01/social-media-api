@@ -44,6 +44,26 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
+class AdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "email",
+            "gender",
+            "birthday",
+            "password",
+            "first_name",
+            "last_name",
+            "online",
+        ]
+        extra_kwargs = {"password": {"write_only": True}}
+
+    def create(self, validated_data):
+        instance = self.Meta.model.objects.create_superuser(**validated_data)
+        return instance
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
