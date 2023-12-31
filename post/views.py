@@ -44,35 +44,17 @@ class PostCreateView(generics.CreateAPIView):
         new_post = Post.objects.get(pk=serializer.data["id"])
         for file in request.FILES.getlist("files"):
             Image.objects.create(post=new_post, file=file, owner=request.user)
-        can_see = []  # noqa: F841
-        friends = RequestFriend.objects.filter(status=True).filter(
-            Q(requestID=request.user.id) | Q(responseID=request.user.id)
-        )
+        friends = request.user.profile.friend.all()
         if (
             serializer.data["status"] == "friends"
             or serializer.data["status"] == "friendExcepts"
         ):
             for friend in friends:
-                if (
-                    friend.responseID == request.user
-                    and friend.requestID.id not in not_see_data
-                ):
-                    new_post.can_see.add(friend.requestID.id)
+                if friend.id not in not_see_data:
+                    new_post.can_see.add(friend.id)
                     Notification.objects.create(
                         senderID=request.user,
-                        receiverID=friend.requestID,
-                        type="create-post-" + str(serializer.data.get("id")),
-                        content="create new post",
-                        read=False,
-                    )
-                if (
-                    friend.requestID == request.user
-                    and friend.responseID.id not in not_see_data
-                ):
-                    new_post.can_see.add(friend.responseID.id)
-                    Notification.objects.create(
-                        senderID=request.user,
-                        receiverID=friend.responseID,
+                        receiverID=friend,
                         type="create-post-" + str(serializer.data.get("id")),
                         content="create new post",
                         read=False,
@@ -91,23 +73,13 @@ class PostCreateView(generics.CreateAPIView):
 
         if serializer.data["status"] == "public":
             for friend in friends:
-                if friend.responseID == request.user:
-                    Notification.objects.create(
-                        senderID=request.user,
-                        receiverID=friend.requestID,
-                        type="create-post-" + str(serializer.data.get("id")),
-                        content="create new post",
-                        read=False,
-                    )
-                if friend.requestID == request.user:
-                    Notification.objects.create(
-                        senderID=request.user,
-                        receiverID=friend.responseID,
-                        type="create-post-" + str(serializer.data.get("id")),
-                        content="create new post",
-                        read=False,
-                    )
-
+                Notification.objects.create(
+                    senderID=request.user,
+                    receiverID=friend,
+                    type="create-post-" + str(serializer.data.get("id")),
+                    content="create new post",
+                    read=False,
+                )
         return Response(
             PostDetailSerializer(new_post, many=False).data,
             status=status.HTTP_201_CREATED,
