@@ -7,6 +7,8 @@ from cms.views import (
     CmsPostRetrieveUpdateDeleteView,
     CmsUserListApi,
     CmsUserUpdateDestroyApi,
+    CmsMediaActionApiView,
+    CmsMediaListApiView,
 )
 
 app_name = "cms"
@@ -23,4 +25,6 @@ urlpatterns = [
         name="cms_post_action_list",
     ),
     path("/admin-add", CmsAdminRegisterAPIView.as_view(), name="cms_admin_add"),
+    path("/media/list", CmsMediaListApiView.as_view(), name="cms_media_list"),
+    path("/media/<int:pk>", CmsMediaActionApiView.as_view(), name="cms_media_action"),
 ]
