@@ -4,6 +4,7 @@ from cms.views import (
     CmsAdminRegisterAPIView,
     CmsLoginApi,
     CmsPostListApi,
+    CmsPostRetrieveUpdateDeleteView,
     CmsUserListApi,
     CmsUserUpdateDestroyApi,
 )
@@ -16,5 +17,10 @@ urlpatterns = [
         "/user/<int:pk>", CmsUserUpdateDestroyApi.as_view(), name="cms_user_action_list"
     ),
     path("/posts", CmsPostListApi.as_view(), name="cms_post_list"),
+    path(
+        "/post/<int:pk>",
+        CmsPostRetrieveUpdateDeleteView.as_view(),
+        name="cms_post_action_list",
+    ),
     path("/admin-add", CmsAdminRegisterAPIView.as_view(), name="cms_admin_add"),
 ]

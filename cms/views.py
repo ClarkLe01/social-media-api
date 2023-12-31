@@ -7,7 +7,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from cms.paginations import PostPagination, UserPagination
 from cms.permissions import IsSuperAdminUser
 from cms.serializers import AdminTokenObtainPairSerializer
-from post.models import Post, Image
+from notification.models import Notification
+from post.models import Image, Post
 from post.serializers import CreatePostSerializer, PostDetailSerializer
 from user.models import User
 from user.serializers import AdminSerializer, UserProfileSerializer
@@ -19,9 +20,77 @@ class CmsPostListApi(generics.ListCreateAPIView):
     serializer_class = CreatePostSerializer
     permission_classes = [IsSuperAdminUser]
     pagination_class = PostPagination
-    
 
-class PostRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    def create(self, request, *args, **kwargs):  # noqa: C901
+        data = {key: value for (key, value) in request.data.items()}
+        can_see_data = data.pop("canSee")
+        not_see_data = data.pop("notSee")
+        try:
+            can_see_data = list(int(x) for x in can_see_data.split(","))
+        except ValueError:
+            can_see_data = []
+        try:
+            not_see_data = list(int(x) for x in not_see_data.split(","))
+        except ValueError:
+            not_see_data = []
+        try:
+            owner = User.objects.get(pk=data["owner"])
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "User does not exist"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+        new_post = Post.objects.get(pk=serializer.data["id"])
+        for file in request.FILES.getlist("files"):
+            Image.objects.create(post=new_post, file=file, owner=owner)
+
+        friends = owner.profile.friend.all()
+        if (
+            serializer.data["status"] == "friends"
+            or serializer.data["status"] == "friendExcepts"
+        ):
+            for friend in friends:
+                if friend.id not in not_see_data:
+                    new_post.can_see.add(friend)
+                    Notification.objects.create(
+                        senderID=owner,
+                        receiverID=friend,
+                        type="create-post-" + str(serializer.data.get("id")),
+                        content="create new post",
+                        read=False,
+                    )
+        if serializer.data["status"] == "specificFriends":
+            for user_id in can_see_data:
+                spec_user = User.objects.get(pk=user_id)
+                new_post.can_see.add(spec_user)
+                Notification.objects.create(
+                    senderID=owner,
+                    receiverID=spec_user,
+                    type="create-post-" + str(serializer.data["id"]),
+                    content="create new post",
+                    read=False,
+                )
+
+        if serializer.data["status"] == "public":
+            for friend in friends:
+                Notification.objects.create(
+                    senderID=owner,
+                    receiverID=friend,
+                    type="create-post-" + str(serializer.data.get("id")),
+                    content="create new post",
+                    read=False,
+                )
+
+        return Response(
+            PostDetailSerializer(new_post, many=False).data,
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class CmsPostRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsSuperAdminUser]
     queryset = Post.objects.all()
     serializer_class = PostDetailSerializer
