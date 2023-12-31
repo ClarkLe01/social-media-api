@@ -36,6 +36,9 @@ class CmsUserListApi(generics.ListCreateAPIView):
         is_admin = self.request.query_params.get("admin")
         if is_admin is not None:
             queryset = queryset.filter(is_superuser=is_admin)
+        username = self.request.query_params.get("username")
+        if username is not None:
+            queryset = queryset.filter(username__icontains=username)
         return queryset
 
     def list(self, request, *args, **kwargs):
