@@ -4,12 +4,16 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from cms.paginations import PostPagination, UserPagination, MediaPagination
+from cms.paginations import MediaPagination, PostPagination, UserPagination
 from cms.permissions import IsSuperAdminUser
 from cms.serializers import AdminTokenObtainPairSerializer
 from notification.models import Notification
 from post.models import Image, Post
-from post.serializers import CreatePostSerializer, PostDetailSerializer, CreatePostImageSerializer
+from post.serializers import (
+    CreatePostImageSerializer,
+    CreatePostSerializer,
+    PostDetailSerializer,
+)
 from user.models import User
 from user.serializers import AdminSerializer, UserProfileSerializer
 
@@ -20,7 +24,7 @@ class CmsPostListApi(generics.ListCreateAPIView):
     serializer_class = CreatePostSerializer
     permission_classes = [IsSuperAdminUser]
     pagination_class = PostPagination
-    
+
     def get_queryset(self):
         """
         Optionally restricts the returned purchases to a given user,
@@ -258,13 +262,12 @@ class CmsAdminRegisterAPIView(generics.CreateAPIView):
             )
 
 
-
 class CmsMediaListApiView(generics.ListAPIView):
     queryset = Image.objects.all()
     serializer_class = CreatePostImageSerializer
     permission_classes = [IsSuperAdminUser]
     pagination_class = MediaPagination
-    
+
     def get_queryset(self):
         """
         Optionally restricts the returned purchases to a given user,
@@ -282,15 +285,15 @@ class CmsMediaActionApiView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CreatePostImageSerializer
     permission_classes = [IsSuperAdminUser]
     pagination_class = MediaPagination
-    
+
     def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
+        partial = kwargs.pop("partial", False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        if getattr(instance, '_prefetched_objects_cache', None):
+        if getattr(instance, "_prefetched_objects_cache", None):
             # If 'prefetch_related' has been applied to a queryset, we need to
             # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}
