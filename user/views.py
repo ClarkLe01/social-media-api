@@ -52,7 +52,6 @@ class UserRegisterAPIView(generics.CreateAPIView):
             'birthday': '2023-02-09T17:00:00.000Z'
         }
         """
-        print(request.data)
         if User.objects.filter(email=request.data["email"]).exists():
             return Response("Your email existed!", status=status.HTTP_400_BAD_REQUEST)
         elif len(request.data["password"]) < 6:
