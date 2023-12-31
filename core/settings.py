@@ -92,6 +92,7 @@ INSTALLED_APPS = [
     "calling",
     "friend",
     "post",
+    "cms",
     "django_filters",
     "cloudinary",
     "debug_toolbar",
