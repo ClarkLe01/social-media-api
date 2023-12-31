@@ -57,6 +57,7 @@ urlpatterns = [
     path("chat", include("chat.urls")),
     path("calling", include("calling.urls")),
     path("post", include("post.urls")),
+    path("cms", include("cms.urls")),
     path("token/refresh", TokenRefreshView.as_view(), name="token_refresh"),
     path("token/verify", TokenVerifyView.as_view(), name="token_verify"),
     path("__debug__/", include("debug_toolbar.urls")),
