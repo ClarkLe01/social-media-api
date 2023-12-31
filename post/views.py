@@ -7,10 +7,8 @@ from rest_framework.response import Response
 from core.mixins import SoftDestroyModelMixin
 from friend.models import RequestFriend
 from notification.models import Notification
-from user.models import User
-
-from .models import Image, Post, PostComment, PostInteraction
-from .serializers import (
+from post.models import Image, Post, PostComment, PostInteraction
+from post.serializers import (
     CreatePostCommentSerializer,
     CreatePostSerializer,
     ImageSerializer,
@@ -18,6 +16,7 @@ from .serializers import (
     PostDetailSerializer,
     PostInteractionsDetailSerializer,
 )
+from user.models import User
 
 
 # Create your views here.
