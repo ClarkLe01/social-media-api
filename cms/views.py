@@ -317,15 +317,12 @@ def get_num_total_statistic(request):
 @api_view(["GET"])
 @permission_classes([IsSuperAdminUser])
 def get_num_user_created_by_date(request):
-    month = request.query_params.get("month")
-    year = request.query_params.get("year")
-    if month and year:
-        num_user = len(User.objects.filter(created__year=year, created__month=month))
+    date = request.query_params.get("date")
+    if date:
+        date = datetime.strptime(date, "%Y-%m-%d")
     else:
-        now = datetime.now()
-        num_user = len(
-            User.objects.filter(created__year=now.year, created__month=now.month)
-        )
+        date = datetime.now()
+    num_user = len(User.objects.filter(created__date=date))
     data = {
         "numUser": num_user,
     }
@@ -362,15 +359,12 @@ def get_num_post_created_by_year(request):
 @api_view(["GET"])
 @permission_classes([IsSuperAdminUser])
 def get_num_post_created_by_date(request):
-    month = request.query_params.get("month")
-    year = request.query_params.get("year")
-    if month and year:
-        num_post = len(Post.objects.filter(created__year=year, created__month=month))
+    date = request.query_params.get("date")
+    if date:
+        date = datetime.strptime(date, "%Y-%m-%d")
     else:
-        now = datetime.now()
-        num_post = len(
-            Post.objects.filter(created__year=now.year, created__month=now.month)
-        )
+        date = datetime.now()
+    num_post = len(Post.objects.filter(created__date=date))
     data = {
         "numPost": num_post,
     }
