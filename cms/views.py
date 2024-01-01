@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.shortcuts import render
 from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
@@ -304,7 +306,72 @@ class CmsMediaActionApiView(generics.RetrieveUpdateDestroyAPIView):
 
 @api_view(["GET"])
 @permission_classes([IsSuperAdminUser])
-def getMyProfile(request):
-    user = request.user
-    serializer = UserProfileSerializer(user, many=False)
-    return Response(serializer.data, status.HTTP_200_OK)
+def get_num_total_statistic(request):
+    total_user = len(User.objects.filter(is_active=True))
+    total_post = len(Post.objects.filter(active=True))
+
+    data = {"totalUser": total_user, "totalPost": total_post}
+    return Response(data, status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([IsSuperAdminUser])
+def get_num_user_created_by_date(request):
+    month = request.query_params.get("month")
+    year = request.query_params.get("year")
+    if month and year:
+        num_user = len(User.objects.filter(created__year=year, created__month=month))
+    else:
+        now = datetime.now()
+        num_user = len(
+            User.objects.filter(created__year=now.year, created__month=now.month)
+        )
+    data = {
+        "numUser": num_user,
+    }
+    return Response(data, status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([IsSuperAdminUser])
+def get_num_user_created_by_year(request):
+    year = request.query_params.get("year")
+    if year is None:
+        year = datetime.now().year
+
+    count_month = []
+    for i in range(1, 13):
+        count_month.append(len(User.objects.filter(created__year=year, created__month=i)))
+    data = {"count": count_month}
+    return Response(data, status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([IsSuperAdminUser])
+def get_num_post_created_by_year(request):
+    year = request.query_params.get("year")
+    if year is None:
+        year = datetime.now().year
+    count_month = []
+    for i in range(1, 13):
+        count_month.append(len(Post.objects.filter(created__year=year, created__month=i)))
+    data = {"count": count_month}
+    return Response(data, status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([IsSuperAdminUser])
+def get_num_post_created_by_date(request):
+    month = request.query_params.get("month")
+    year = request.query_params.get("year")
+    if month and year:
+        num_post = len(Post.objects.filter(created__year=year, created__month=month))
+    else:
+        now = datetime.now()
+        num_post = len(
+            Post.objects.filter(created__year=now.year, created__month=now.month)
+        )
+    data = {
+        "numPost": num_post,
+    }
+    return Response(data, status.HTTP_200_OK)
