@@ -2,6 +2,8 @@ from django.urls import path
 
 from cms.views import (
     CmsAdminRegisterAPIView,
+    CmsCommentListView,
+    CmsCommentUpdateDeleteView,
     CmsLoginApi,
     CmsMediaActionApiView,
     CmsMediaListApiView,
@@ -9,6 +11,8 @@ from cms.views import (
     CmsPostRetrieveUpdateDeleteView,
     CmsUserListApi,
     CmsUserUpdateDestroyApi,
+    get_num_age_group,
+    get_num_gender_count,
     get_num_post_created_by_date,
     get_num_post_created_by_year,
     get_num_total_statistic,
@@ -52,5 +56,21 @@ urlpatterns = [
         "/statistic/post/by-year",
         get_num_post_created_by_year,
         name="statistic_post_created_by_year",
+    ),
+    path(
+        "/statistic/gender-group",
+        get_num_gender_count,
+        name="statistic_gender",
+    ),
+    path(
+        "/statistic/age-group",
+        get_num_age_group,
+        name="statistic_age",
+    ),
+    path("/<int:pk>/comments", CmsCommentListView.as_view(), name="cms_post_comments"),
+    path(
+        "/comment/<int:pk>",
+        CmsCommentUpdateDeleteView.as_view(),
+        name="cms_comment_action",
     ),
 ]
