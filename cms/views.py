@@ -1,15 +1,22 @@
+from datetime import datetime
+
 from django.shortcuts import render
 from rest_framework import generics, permissions, status
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from cms.paginations import PostPagination, UserPagination
+from cms.paginations import MediaPagination, PostPagination, UserPagination
 from cms.permissions import IsSuperAdminUser
 from cms.serializers import AdminTokenObtainPairSerializer
 from notification.models import Notification
 from post.models import Image, Post
-from post.serializers import CreatePostSerializer, PostDetailSerializer
+from post.serializers import (
+    CreatePostImageSerializer,
+    CreatePostSerializer,
+    PostDetailSerializer,
+)
 from user.models import User
 from user.serializers import AdminSerializer, UserProfileSerializer
 
@@ -20,6 +27,17 @@ class CmsPostListApi(generics.ListCreateAPIView):
     serializer_class = CreatePostSerializer
     permission_classes = [IsSuperAdminUser]
     pagination_class = PostPagination
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = self.queryset
+        username = self.request.query_params.get("username")
+        if username is not None:
+            queryset = queryset.filter(owner__email__icontains=username)
+        return queryset
 
     def create(self, request, *args, **kwargs):  # noqa: C901
         data = {key: value for (key, value) in request.data.items()}
@@ -245,3 +263,109 @@ class CmsAdminRegisterAPIView(generics.CreateAPIView):
                 status=status.HTTP_201_CREATED,
                 headers=headers,
             )
+
+
+class CmsMediaListApiView(generics.ListAPIView):
+    queryset = Image.objects.all()
+    serializer_class = CreatePostImageSerializer
+    permission_classes = [IsSuperAdminUser]
+    pagination_class = MediaPagination
+
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = self.queryset
+        username = self.request.query_params.get("username")
+        if username is not None:
+            queryset = queryset.filter(owner__email__icontains=username)
+        return queryset
+
+
+class CmsMediaActionApiView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Image.objects.all()
+    serializer_class = CreatePostImageSerializer
+    permission_classes = [IsSuperAdminUser]
+    pagination_class = MediaPagination
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, "_prefetched_objects_cache", None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes([IsSuperAdminUser])
+def get_num_total_statistic(request):
+    total_user = len(User.objects.filter(is_active=True))
+    total_post = len(Post.objects.filter(active=True))
+
+    data = {"totalUser": total_user, "totalPost": total_post}
+    return Response(data, status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([IsSuperAdminUser])
+def get_num_user_created_by_date(request):
+    date = request.query_params.get("date")
+    if date:
+        date = datetime.strptime(date, "%Y-%m-%d")
+    else:
+        date = datetime.now()
+    num_user = len(User.objects.filter(created__date=date))
+    data = {
+        "numUser": num_user,
+    }
+    return Response(data, status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([IsSuperAdminUser])
+def get_num_user_created_by_year(request):
+    year = request.query_params.get("year")
+    if year is None:
+        year = datetime.now().year
+
+    count_month = []
+    for i in range(1, 13):
+        count_month.append(len(User.objects.filter(created__year=year, created__month=i)))
+    data = {"count": count_month}
+    return Response(data, status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([IsSuperAdminUser])
+def get_num_post_created_by_year(request):
+    year = request.query_params.get("year")
+    if year is None:
+        year = datetime.now().year
+    count_month = []
+    for i in range(1, 13):
+        count_month.append(len(Post.objects.filter(created__year=year, created__month=i)))
+    data = {"count": count_month}
+    return Response(data, status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([IsSuperAdminUser])
+def get_num_post_created_by_date(request):
+    date = request.query_params.get("date")
+    if date:
+        date = datetime.strptime(date, "%Y-%m-%d")
+    else:
+        date = datetime.now()
+    num_post = len(Post.objects.filter(created__date=date))
+    data = {
+        "numPost": num_post,
+    }
+    return Response(data, status.HTTP_200_OK)
