@@ -1,20 +1,28 @@
 from datetime import datetime
 
+from django.db.models import Case, CharField, Count, IntegerField, When
 from django.shortcuts import render
-from rest_framework import generics, permissions, status
+from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from cms.paginations import MediaPagination, PostPagination, UserPagination
+from cms.paginations import (
+    CommentPagination,
+    MediaPagination,
+    PostPagination,
+    UserPagination,
+)
 from cms.permissions import IsSuperAdminUser
 from cms.serializers import AdminTokenObtainPairSerializer
 from notification.models import Notification
-from post.models import Image, Post
+from post.models import Image, Post, PostComment
 from post.serializers import (
+    CreatePostCommentSerializer,
     CreatePostImageSerializer,
     CreatePostSerializer,
+    PostCommentDetailSerializer,
     PostDetailSerializer,
 )
 from user.models import User
@@ -24,7 +32,7 @@ from user.serializers import AdminSerializer, UserProfileSerializer
 # Create your views here.
 class CmsPostListApi(generics.ListCreateAPIView):
     queryset = Post.objects.all()
-    serializer_class = CreatePostSerializer
+    serializer_class = PostDetailSerializer
     permission_classes = [IsSuperAdminUser]
     pagination_class = PostPagination
 
@@ -57,7 +65,7 @@ class CmsPostListApi(generics.ListCreateAPIView):
             return Response(
                 {"detail": "User does not exist"}, status=status.HTTP_400_BAD_REQUEST
             )
-        serializer = self.get_serializer(data=data)
+        serializer = CreatePostSerializer(data=data)
         serializer.is_valid(raise_exception=True)
 
         self.perform_create(serializer)
@@ -304,6 +312,45 @@ class CmsMediaActionApiView(generics.RetrieveUpdateDestroyAPIView):
         return Response(serializer.data)
 
 
+class CmsCommentListView(generics.ListAPIView):
+    permission_classes = [IsSuperAdminUser]
+    queryset = PostComment.objects.all()
+    serializer_class = PostCommentDetailSerializer
+    pagination_class = CommentPagination
+
+    def get_queryset(self):
+        queryset = PostComment.objects.filter(post__id=self.kwargs.get("pk"))
+        if len(queryset) == 0:
+            return None
+        return queryset
+
+
+class CmsCommentUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsSuperAdminUser]
+    queryset = PostComment.objects.all()
+    serializer_class = PostCommentDetailSerializer
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = CreatePostCommentSerializer(
+            instance, data=request.data, partial=partial
+        )
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(instance, "_prefetched_objects_cache", None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        data = PostCommentDetailSerializer(
+            PostComment.objects.get(pk=serializer.data["id"]),
+            many=False,
+        ).data
+        return Response(data)
+
+
 @api_view(["GET"])
 @permission_classes([IsSuperAdminUser])
 def get_num_total_statistic(request):
@@ -368,4 +415,37 @@ def get_num_post_created_by_date(request):
     data = {
         "numPost": num_post,
     }
+    return Response(data, status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([IsSuperAdminUser])
+def get_num_gender_count(request):
+    male = len(User.objects.filter(gender="male"))
+    female = len(User.objects.filter(gender="female"))
+    data = {"male": male, "female": female}
+    return Response(data, status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes([IsSuperAdminUser])
+def get_num_age_group(request):
+    current_date = datetime.today()
+    age_18_24 = [current_date.year - 18, current_date.year - 24]
+    age_25_34 = [current_date.year - 25, current_date.year - 34]
+    age_45_54 = [current_date.year - 45, current_date.year - 54]
+    age_55_64 = [current_date.year - 55, current_date.year - 64]
+    age_ranges = [
+        (age_18_24, "18-24"),
+        (age_25_34, "25-34"),
+        (age_45_54, "45-54"),
+        (age_55_64, "55-64"),
+    ]
+    data = {
+        x[1]: len(
+            User.objects.filter(birthday__year__gte=x[0][1], birthday__year__lte=x[0][0])
+        )
+        for x in age_ranges
+    }
+    data["65+"] = len(User.objects.filter(birthday__year__lte=current_date.year - 65))
     return Response(data, status.HTTP_200_OK)
