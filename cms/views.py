@@ -320,8 +320,6 @@ class CmsCommentListView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = PostComment.objects.filter(post__id=self.kwargs.get("pk"))
-        if len(queryset) == 0:
-            return None
         return queryset
 
 
