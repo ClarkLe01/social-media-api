@@ -91,6 +91,7 @@ class UserPostListView(generics.ListAPIView):
     serializer_class = PostDetailSerializer
     permission_classes = [permissions.IsAuthenticated]
     queryset = Post.objects.filter(active=True)
+    pagination_class = PostPagination
 
     def get_queryset(self):
         user_id = self.kwargs.get("pk")
