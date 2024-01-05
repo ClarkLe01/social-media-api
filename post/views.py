@@ -8,6 +8,7 @@ from core.mixins import SoftDestroyModelMixin
 from friend.models import RequestFriend
 from notification.models import Notification
 from post.models import Image, Post, PostComment, PostInteraction
+from post.paginations import PostPagination
 from post.serializers import (
     CreatePostCommentSerializer,
     CreatePostSerializer,
@@ -90,6 +91,7 @@ class UserPostListView(generics.ListAPIView):
     serializer_class = PostDetailSerializer
     permission_classes = [permissions.IsAuthenticated]
     queryset = Post.objects.filter(active=True)
+    pagination_class = PostPagination
 
     def get_queryset(self):
         user_id = self.kwargs.get("pk")
@@ -101,6 +103,7 @@ class PostListView(generics.ListAPIView):
     serializer_class = PostDetailSerializer
     permission_classes = [permissions.IsAuthenticated]
     queryset = Post.objects.filter(active=True)
+    pagination_class = PostPagination
 
     def get_queryset(self):
         queryset = self.queryset.filter(
