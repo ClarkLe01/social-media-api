@@ -193,7 +193,10 @@ class CommentListView(generics.ListAPIView):
         return queryset
 
     def list(self, request, *args, **kwargs):
-        post = Post.objects.filter(active=True).get(pk=self.kwargs.get("pk"))
+        try:
+            post = Post.objects.filter(active=True).get(pk=self.kwargs.get("pk"))
+        except Post.DoesNotExist:
+            Response({"detail": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
         if (
             post.owner != request.user
             and request.user not in post.can_see.all()
@@ -293,7 +296,10 @@ class InteractionAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        post = Post.objects.get(pk=kwargs.get("pk"))
+        try:
+            post = Post.objects.filter(active=True).get(pk=kwargs.get("pk"))
+        except Post.DoesNotExist:
+            Response({"detail": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
         if (
             post.owner != request.user
             and request.user not in post.can_see.all()
