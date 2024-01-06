@@ -19,9 +19,16 @@ class AddFriendView(generics.CreateAPIView):
     queryset = RequestFriend.objects.all()
 
     def create(self, request, *args, **kwargs):
-        if request.user.profile.friend.filter(
-            friend_user__id=request.data.get("responseID")
-        ):
+        user_requested = User.objects.get(pk=request.data.get("responseID"))
+        is_requested = (
+            self.queryset.filter(
+                requestID=request.user, responseID=user_requested
+            ).exists()
+            or self.queryset.filter(
+                requestID=user_requested, responseID=request.user
+            ).exists()
+        )
+        if user_requested in request.user.profile.friend.all() or is_requested:
             return Response(
                 {"detail": "You are already friends or are waiting for their response."},
                 status=status.HTTP_400_BAD_REQUEST,

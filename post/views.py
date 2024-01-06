@@ -96,6 +96,10 @@ class UserPostListView(generics.ListAPIView):
     def get_queryset(self):
         user_id = self.kwargs.get("pk")
         queryset = self.queryset.filter(owner__id=user_id).order_by("-created")
+        if self.request.user.id != user_id:
+            queryset = queryset.filter(
+                Q(can_see=self.request.user) | Q(status=Post.Status.PUBLIC)
+            )
         return queryset
 
 
@@ -296,7 +300,10 @@ class InteractionAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        post = Post.objects.get(pk=kwargs.get("pk"))
+        try:
+            post = Post.objects.filter(active=True).get(pk=kwargs.get("pk"))
+        except Post.DoesNotExist:
+            Response({"detail": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
         if (
             post.owner != request.user
             and request.user not in post.can_see.all()
