@@ -12,6 +12,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from friend.models import RequestFriend
 from user.models import AdditionalProfile, User
+from user.paginations import UserPagination
 from user.serializers import (
     MyTokenObtainPairSerializer,
     UserProfileSerializer,
@@ -211,6 +212,7 @@ class UsersListView(generics.ListAPIView):
     serializer_class = UserSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ["email", "first_name", "last_name"]
+    pagination_class = UserPagination
 
     def get_queryset(self):
         user = self.request.user

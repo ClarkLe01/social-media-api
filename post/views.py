@@ -96,6 +96,10 @@ class UserPostListView(generics.ListAPIView):
     def get_queryset(self):
         user_id = self.kwargs.get("pk")
         queryset = self.queryset.filter(owner__id=user_id).order_by("-created")
+        if self.request.user.id != user_id:
+            queryset = queryset.filter(
+                Q(can_see=self.request.user) | Q(status=Post.Status.PUBLIC)
+            )
         return queryset
 
 
