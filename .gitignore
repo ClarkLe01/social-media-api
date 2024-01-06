@@ -157,3 +157,4 @@ cython_debug/
 test-results
 certbot/
 letsencrypt
+nginx/nginx-staging.conf
